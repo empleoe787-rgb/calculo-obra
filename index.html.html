@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Cuantificación Cronológica de Obra</title>
+
+  <style>
+    /* =====================================================================
+       1. PALETA CÁLIDA DE OBRA REAL Y VARIABLES DE DISEÑO
+       ===================================================================== */
+    :root {
+      --bg-marfil: #F7F4EE;
+      --bg-alabastro: #FFFFFF;
+      --bg-arena: #EFECE4;
+      --borde-caliza: #D8D0C2;
+      --borde-fuerte: #B5AA98;
+      --texto-carbon: #1E1C19;
+      --texto-grafito: #59554C;
+      --texto-tenue: #7C776D;
+
+      /* Colores vivos de obra */
+      --c-maquinaria: #E09F1F;
+      --c-maquinaria-bg: #FEF4DC;
+      --c-ingenieria: #2A6F4E;
+      --c-ingenieria-bg: #DDF3E8;
+      --c-terracota: #C84B31;
+      --c-terracota-bg: #FCE6E0;
+      --c-cobre: #B86B35;
+      --c-cobre-bg: #FAECDF;
+      --c-acabado: #1F7A8C;
+      --c-acabado-bg: #DDF0F4;
+      --c-resumen: #2B3A4A;
+      --c-resumen-bg: #E3E9EF;
+
+      --radio-xl: 18px;
+      --radio-lg: 14px;
+      --radio-md: 10px;
+      --radio-sm: 8px;
+      --sombra: 0 6px 20px -6px rgba(30, 28, 25, 0.09), 0 1px 3px rgba(30, 28, 25, 0.05);
+      --fuente-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --fuente-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--fuente-sans);
+      background-color: var(--bg-marfil);
+      background-image:
+        linear-gradient(to right, rgba(216, 208, 194, 0.32) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(216, 208, 194, 0.32) 1px, transparent 1px),
+        linear-gradient(to right, rgba(181, 170, 152, 0.22) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(181, 170, 152, 0.22) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+      color: var(--texto-carbon);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .contenedor {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 18px;
+    }
+
+    @media (max-width: 768px) {
+      .contenedor { padding: 0 12px; }
+      body { padding-bottom: 84px; }
+    }
+
+    /* =====================================================================
+       2. BARRA SUPERIOR GITHUB / ARCHIVO & ENCABEZADO DE OBRA
+       ===================================================================== */
+    .franja-color {
+      height: 6px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      width: 100%;
+    }
+    .franja-color span:nth-child(1) { background: var(--c-maquinaria); }
+    .franja-color span:nth-child(2) { background: var(--c-ingenieria); }
+    .franja-color span:nth-child(3) { background: var(--c-terracota); }
+    .franja-color span:nth-child(4) { background: var(--c-cobre); }
+    .franja-color span:nth-child(5) { background: var(--c-acabado); }
+    .franja-color span:nth-child(6) { background: var(--c-resumen); }
+
+    .encabezado-app {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1.5px solid var(--borde-caliza);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .barra-github {
+      background: var(--bg-arena);
+      border-bottom: 1px solid var(--borde-caliza);
+      padding: 7px 0;
+      font-size: 0.76rem;
+    }
+
+    .barra-github-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .codigo-etiqueta {
+      font-family: var(--fuente-mono);
+      font-weight: 700;
+      color: var(--texto-carbon);
+      background: #FFFFFF;
+      border: 1px solid var(--borde-caliza);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .encabezado-principal {
+      padding: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .encabezado-fila {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .marca-grupo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icono-casco {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      background: var(--c-terracota);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(200, 75, 49, 0.25);
+      flex-shrink: 0;
+    }
+
+    .titulo-app {
+      font-size: 1.32rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--texto-carbon);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pildora-carrera {
+      font-family: var(--fuente-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      background: var(--c-ingenieria-bg);
+      color: var(--c-ingenieria);
+      border: 1px solid rgba(42, 111, 78, 0.35);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .subtitulo-app {
+      font-size: 0.8rem;
+      color: var(--texto-grafito);
+      margin-top: 2px;
+    }
+
+    .acciones-grupo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: var(--fuente-sans);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--radio-md);
+      border: 1.5px solid var(--borde-caliza);
+      background: var(--bg-alabastro);
+      color: var(--texto-carbon);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .btn:hover { background: var(--bg-arena); border-color: var(--borde-fuerte); transform: translateY(-1px); }
+    .btn-sm { padding: 6px 11px; font-size: 0.74rem; border-radius: 8px; min-height: 36px; }
+    .btn-oscuro { background: var(--texto-carbon); color: #FFFFFF; border-color: var(--texto-carbon); }
+    .btn-oscuro:hover { background: #36332E; color: #FFFFFF; }
+    .btn-verde { background: var(--c-ingenieria); color: #FFFFFF; border-color: var(--c-ingenieria); }
+    .btn-verde:hover { background: #21593E; }
+    .btn-terracota { background: var(--c-terracota); color: #FFFFFF; border-color: var(--c-terracota); }
+    .btn-terracota:hover { background: #A83B24; }
+
+    .barra-datos-obra {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: var(--bg-marfil);
+      padding: 10px 12px;
+      border-radius: var(--radio-lg);
+      border: 1px solid var(--borde-caliza);
+    }
+    @media (max-width: 920px) { .barra-datos-obra { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .barra-datos-obra { grid-template-columns: 1fr; } }
+
+    .campo-meta label {
+      display: block;
+      font-family: var(--fuente-mono);
+      font-size: 0.64rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--texto-grafito);
+      margin-bottom: 3px;
+    }
+    .campo-meta input {
+      width: 100%;
+      font-family: var(--fuente-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--texto-carbon);
+      background: #FFFFFF;
+      border: 1px solid var(--borde-caliza);
+      border-radius: 7px;
+      padding: 5px 9px;
+      outline: none;
+    }
+    .campo-meta input:focus { border-color: var(--c-terracota); }
+
+    @media (max-width: 768px) {
+      .encabezado-app { position: relative; }
+      .barra-github { display: none; }
+      .encabezado-principal { padding: 10px 0; gap: 10px; }
+      .icono-casco { width: 40px; height: 40px; border-radius: 11px; }
+      .titulo-app { font-size: 1.15rem; }
+      .subtitulo-app { font-size: 0.75rem; }
+      .acciones-grupo {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+      .acciones-grupo .btn:first-child { grid-column: 1 / -1; }
+      .btn { min-height: 44px; font-size: 0.8rem; }
+      .campo-meta input { font-size: 16px; padding: 8px 10px; min-height: 44px; }
+    }
+
+    /* =====================================================================
+       3. LÍNEA DE TIEMPO CRONOLÓGICA DE 6 PASOS DE CONSTRUCCIÓN
+       ===================================================================== */
+    .pasos-nav {
+      margin: 18px 0 18px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 9px;
+    }
+    @media (max-width: 1120px) and (min-width: 769px) { .pasos-nav { grid-template-columns: repeat(3, 1fr); } }
+
+    .paso-btn {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: var(--radio-lg);
+      padding: 10px 11px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 52px;
+      transition: all 0.16s ease;
+      touch-action: manipulation;
+    }
+    .paso-btn:hover { background: #FFFFFF; transform: translateY(-2px); box-shadow: var(--sombra); }
+    .paso-btn.activo {
+      background: #FFFFFF;
+      border-width: 2px;
+      box-shadow: var(--sombra);
+    }
+
+    @media (max-width: 768px) {
+      .pasos-nav {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding: 4px 2px 10px;
+        margin: 12px 0;
+        scrollbar-width: none;
+      }
+      .pasos-nav::-webkit-scrollbar { display: none; }
+      .paso-btn {
+        flex: 0 0 168px;
+        scroll-snap-align: start;
+        padding: 9px 10px;
+        min-height: 54px;
+      }
+    }
+
+    .paso-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-mono);
+      font-weight: 800;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .paso-texto { min-width: 0; }
+    .paso-etapa {
+      font-family: var(--fuente-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: block;
+    }
+    .paso-titulo {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--texto-carbon);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    /* =====================================================================
+       4. PANELES DE TRABAJO (2 COLUMNAS: CONTROLES + VISOR SVG EN VIVO)
+       ===================================================================== */
+    .panel-etapa { display: none; }
+    .panel-etapa.activo {
+      display: grid;
+      grid-template-columns: 1.22fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .panel-etapa.activo.ancho-total { grid-template-columns: 1fr; }
+    @media (max-width: 1020px) {
+      .panel-etapa.activo { grid-template-columns: 1fr; gap: 14px; }
+    }
+
+    .tarjeta {
+      background: var(--bg-alabastro);
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: var(--radio-xl);
+      padding: 20px;
+      box-shadow: var(--sombra);
+    }
+
+    @media (max-width: 768px) {
+      .tarjeta { padding: 14px; border-radius: 15px; }
+    }
+
+    .tarjeta-cabecera {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1.5px solid var(--bg-arena);
+    }
+
+    .etiqueta-paso {
+      font-family: var(--fuente-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: block;
+    }
+
+    .titulo-tarjeta {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--texto-carbon);
+    }
+
+    .insignia-proceso {
+      font-family: var(--fuente-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid currentColor;
+    }
+
+    .etiqueta-seccion {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--texto-grafito);
+      margin-bottom: 8px;
+    }
+
+    /* Selector visual de sistemas constructivos */
+    .rejilla-opciones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 768px) { .rejilla-opciones { grid-template-columns: 1fr; gap: 8px; } }
+
+    .opcion-btn {
+      background: #FAF8F4;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: var(--radio-lg);
+      padding: 9px;
+      text-align: left;
+      cursor: pointer;
+      min-height: 48px;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .opcion-btn:hover { background: #FFFFFF; border-color: var(--borde-fuerte); transform: translateY(-2px); }
+    .opcion-btn.seleccionada {
+      background: #FFFFFF;
+      border-width: 2px;
+      box-shadow: 0 4px 12px rgba(30, 28, 25, 0.08);
+    }
+    .opcion-btn svg {
+      width: 100%;
+      height: 52px;
+      background: #FFFFFF;
+      border: 1px solid #EAE3D5;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .opcion-nombre { font-size: 0.78rem; font-weight: 800; color: var(--texto-carbon); }
+    .opcion-sub { font-family: var(--fuente-mono); font-size: 0.64rem; color: var(--texto-grafito); display: block; margin-top: 2px; }
+
+    /* Controles y Sliders Sincronizados */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; } }
+
+    .caja-control {
+      background: var(--bg-marfil);
+      border: 1px solid var(--borde-caliza);
+      border-radius: var(--radio-md);
+      padding: 10px 12px;
+    }
+    .caja-control-arriba {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .caja-control label {
+      font-family: var(--fuente-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--texto-grafito);
+    }
+
+    .entrada-num {
+      font-family: var(--fuente-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--texto-carbon);
+      background: #FFFFFF;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: 7px;
+      padding: 4px 8px;
+      width: 88px;
+      text-align: right;
+      outline: none;
+    }
+    .entrada-num.ancha { width: 100%; text-align: left; }
+    .entrada-texto {
+      font-family: var(--fuente-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--texto-carbon);
+      background: #FFFFFF;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: 7px;
+      padding: 6px 9px;
+      width: 100%;
+      outline: none;
+    }
+    .entrada-num:focus, .entrada-texto:focus { border-color: var(--texto-carbon); }
+
+    @media (max-width: 768px) {
+      .entrada-num, .entrada-texto { font-size: 16px; min-height: 44px; padding: 7px 10px; }
+      .entrada-num { width: 104px; }
+    }
+
+    input[type="range"].deslizador {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #DDD5C7;
+      border-radius: 999px;
+      outline: none;
+      margin-top: 8px;
+      touch-action: pan-y;
+    }
+    input[type="range"].deslizador::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--texto-carbon);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+    }
+    input[type="range"].deslizador::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--texto-carbon);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+    }
+
+    /* Visor SVG de Obra en Tiempo Real */
+    .visor-svg {
+      background-color: #FAF7F2;
+      background-image:
+        linear-gradient(to right, rgba(30, 28, 25, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 28, 25, 0.05) 1px, transparent 1px);
+      background-size: 16px 16px;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: var(--radio-lg);
+      padding: 8px;
+      margin-bottom: 14px;
+    }
+    .visor-svg svg { width: 100%; height: auto; max-height: 210px; display: block; }
+
+    /* KPIs de Resultado */
+    .kpi-destacado {
+      border-radius: var(--radio-lg);
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1.5px solid currentColor;
+    }
+    .kpi-valor-grande {
+      font-family: var(--fuente-mono);
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--texto-carbon);
+    }
+
+    .rejilla-kpis {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+    .kpi-caja {
+      background: var(--bg-marfil);
+      border: 1px solid var(--borde-caliza);
+      border-radius: var(--radio-md);
+      padding: 9px 11px;
+    }
+    .kpi-etiqueta { font-size: 0.7rem; font-weight: 700; color: var(--texto-grafito); display: block; }
+    .kpi-dato { font-family: var(--fuente-mono); font-size: 1.02rem; font-weight: 800; color: var(--texto-carbon); margin-top: 2px; display: block; }
+    .kpi-nota { font-family: var(--fuente-mono); font-size: 0.65rem; color: var(--texto-tenue); display: block; margin-top: 1px; }
+
+    .btn-agregar-etapa {
+      width: 100%;
+      min-height: 48px;
+      padding: 13px 16px;
+      border: none;
+      border-radius: var(--radio-lg);
+      color: #FFFFFF;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(30, 28, 25, 0.14);
+      transition: filter 0.15s, transform 0.12s;
+      touch-action: manipulation;
+    }
+    .btn-agregar-etapa:hover { filter: brightness(1.07); transform: translateY(-1px); }
+
+    /* =====================================================================
+       5. RESUMEN GENERAL / PRESUPUESTO Y EXPLOSIÓN DE MATERIALES (PASO 06)
+       ===================================================================== */
+    .tarjetas-resumen-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 1120px) { .tarjetas-resumen-6 { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .tarjetas-resumen-6 { grid-template-columns: repeat(2, 1fr); } }
+
+    .mini-resumen {
+      background: #FFFFFF;
+      border: 1.5px solid var(--borde-caliza);
+      border-left-width: 5px;
+      border-radius: var(--radio-md);
+      padding: 11px;
+    }
+    .mini-resumen-lbl { font-family: var(--fuente-mono); font-size: 0.64rem; font-weight: 700; text-transform: uppercase; color: var(--texto-grafito); }
+    .mini-resumen-val { font-family: var(--fuente-mono); font-size: 1.15rem; font-weight: 800; color: var(--texto-carbon); margin-top: 3px; }
+    .mini-resumen-sub { font-family: var(--fuente-mono); font-size: 0.65rem; color: var(--texto-tenue); margin-top: 2px; }
+
+    .tabla-envoltura {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: var(--radio-lg);
+      background: #FFFFFF;
+      margin-bottom: 20px;
+    }
+    table.tabla-obra {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+    table.tabla-obra th {
+      background: var(--bg-arena);
+      font-family: var(--fuente-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--texto-grafito);
+      padding: 10px 12px;
+      border-bottom: 1.5px solid var(--borde-caliza);
+      white-space: nowrap;
+    }
+    table.tabla-obra td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ECE6DA;
+      vertical-align: middle;
+    }
+    table.tabla-obra tr:hover td { background: #FCFBF8; }
+    .col-der { text-align: right; font-family: var(--fuente-mono); font-weight: 700; }
+
+    .pu-editable {
+      width: 92px;
+      text-align: right;
+      font-family: var(--fuente-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 7px;
+      border: 1.5px solid var(--borde-caliza);
+      border-radius: 7px;
+      background: #FAF8F4;
+      color: var(--texto-carbon);
+    }
+    .pu-editable:focus { outline: none; border-color: var(--c-ingenieria); background: #FFFFFF; }
+
+    @media (max-width: 768px) {
+      .pu-editable {
+        width: 102px;
+        font-size: 16px;
+        min-height: 42px;
+        padding: 6px 8px;
+      }
+      .btn-quitar { min-height: 40px; padding: 6px 10px; }
+    }
+
+    .insignia-paso {
+      display: inline-block;
+      font-family: var(--fuente-mono);
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-quitar {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--c-terracota);
+      font-family: var(--fuente-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .btn-quitar:hover { background: var(--c-terracota-bg); border-color: #F5B7AA; }
+
+    /* Toast */
+    #toast-aviso {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-item {
+      background: #FFFFFF;
+      border: 2px solid var(--texto-carbon);
+      border-left: 6px solid var(--c-ingenieria);
+      border-radius: 12px;
+      padding: 10px 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--texto-carbon);
+      box-shadow: 0 10px 24px rgba(30, 28, 25, 0.16);
+    }
+
+    /* Barra Rápida Inferior Exclusiva para Celular (<= 768px) */
+    .barra-movil-inferior {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      #toast-aviso {
+        bottom: 78px;
+        right: 12px;
+        left: 12px;
+      }
+      .barra-movil-inferior {
+        display: grid;
+        grid-template-columns: 0.85fr 1.35fr 0.85fr 0.95fr;
+        gap: 6px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(10px);
+        border-top: 1.5px solid var(--borde-caliza);
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        box-shadow: 0 -4px 16px rgba(30, 28, 25, 0.09);
+      }
+      .btn-movil {
+        min-height: 46px;
+        border-radius: 11px;
+        border: 1.5px solid var(--borde-caliza);
+        background: var(--bg-marfil);
+        color: var(--texto-carbon);
+        font-family: var(--fuente-sans);
+        font-size: 0.72rem;
+        font-weight: 800;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.15;
+        cursor: pointer;
+        padding: 4px;
+        touch-action: manipulation;
+      }
+      .btn-movil:active { transform: scale(0.97); }
+      .btn-movil-agregar {
+        background: var(--c-ingenieria);
+        border-color: var(--c-ingenieria);
+        color: #FFFFFF;
+      }
+      .btn-movil-resumen {
+        background: var(--c-resumen);
+        border-color: var(--c-resumen);
+        color: #FFFFFF;
+      }
+    }
+
+    /* =====================================================================
+       6. VISTA DE IMPRESIÓN LIMPIA PARA PDF (@media print)
+       ===================================================================== */
+    .membrete-impresion, .firmas-impresion { display: none; }
+
+    @media print {
+      body { background: #FFFFFF !important; background-image: none !important; color: #000000 !important; }
+      .sin-imprimir { display: none !important; }
+      .membrete-impresion {
+        display: block !important;
+        border: 2px solid #1E1C19;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+      }
+      .panel-etapa { display: none !important; }
+      #panel-paso6 { display: block !important; }
+      .tarjeta, .tabla-envoltura, .mini-resumen {
+        box-shadow: none !important;
+        border: 1px solid #999999 !important;
+        break-inside: avoid;
+      }
+      .firmas-impresion {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        margin-top: 44px;
+        text-align: center;
+        font-size: 0.78rem;
+      }
+      .linea-firma { border-top: 1.5px solid #1E1C19; padding-top: 6px; font-weight: 700; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast-aviso" class="sin-imprimir"></div>
+
+  <!-- =====================================================================
+       ENCABEZADO DE OBRA
+       ===================================================================== -->
+  <header class="encabezado-app sin-imprimir">
+    <div class="franja-color">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="contenedor encabezado-principal">
+      <div class="encabezado-fila">
+        <div class="marca-grupo">
+          <div class="icono-casco" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 18h20"/><path d="M4 18v-3a8 8 0 0 1 16 0v3"/><path d="M10 7v4"/><path d="M14 7v4"/><path d="M12 5v6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="titulo-app">
+              <span>Cuantificación Cronológica de Obra</span>
+            </div>
+            <p class="subtitulo-app">Secuencia constructiva en 6 pasos: excavación, desplante, castillos, barda/muro, losa, acabados y presupuesto</p>
+          </div>
+        </div>
+
+        <div class="acciones-grupo">
+          <button type="button" class="btn btn-verde" onclick="cargarEjemploObra()">
+            <span>🏗️ Cargar Ejemplo de Obra</span>
+          </button>
+          <button type="button" class="btn" onclick="exportarCSV()">
+            <span>📊 Exportar CSV</span>
+          </button>
+          <button type="button" class="btn btn-oscuro" onclick="imprimirPDF()">
+            <span>🖨️ Imprimir / PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="barra-datos-obra">
+        <div class="campo-meta">
+          <label for="meta-obra">Nombre de la Obra / Proyecto</label>
+          <input id="meta-obra" type="text" value="Barda Perimetral y Cuarto de Servicio" oninput="sincronizarMeta()" />
+        </div>
+        <div class="campo-meta">
+          <label for="meta-alumno">Alumno(a) / Equipo</label>
+          <input id="meta-alumno" type="text" value="Estudiante de Ing. Civil / Arquitectura" oninput="sincronizarMeta()" />
+        </div>
+        <div class="campo-meta">
+          <label for="meta-curso">Materia / Cuatrimestre</label>
+          <input id="meta-curso" type="text" value="Procedimientos Constructivos y Costos" oninput="sincronizarMeta()" />
+        </div>
+        <div class="campo-meta">
+          <label for="meta-indirectos">Indirectos y Utilidad (%)</label>
+          <input id="meta-indirectos" type="number" step="0.5" min="0" max="60" value="18.0" oninput="renderResumen()" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Membrete Exclusivo al Imprimir / Guardar PDF -->
+  <div class="contenedor membrete-impresion">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px;">
+      <div>
+        <div style="font-family:var(--fuente-mono); font-size:0.7rem; font-weight:700; color:#59554C;">
+          CUANTIFICACIÓN CRONOLÓGICA DE OBRA · PRESUPUESTO Y EXPLOSIÓN DE MATERIALES
+        </div>
+        <h1 id="imp-obra" style="font-size:1.35rem; margin:4px 0;">Barda Perimetral y Cuarto de Servicio</h1>
+        <p style="font-size:0.82rem;">
+          <strong>Responsable:</strong> <span id="imp-alumno">Estudiante</span> &nbsp;|&nbsp;
+          <strong>Materia:</strong> <span id="imp-curso">Procedimientos Constructivos</span>
+        </p>
+      </div>
+      <div style="text-align:right; font-family:var(--fuente-mono); font-size:0.72rem;">
+        <div><strong>Reporte de Cuantificación</strong></div>
+        <div id="imp-fecha"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       CUERPO PRINCIPAL
+       ===================================================================== -->
+  <main class="contenedor" style="flex:1; padding-bottom:36px;">
+
+    <!-- LÍNEA DE TIEMPO CRONOLÓGICA DE 6 PASOS -->
+    <nav class="pasos-nav sin-imprimir" aria-label="Pasos cronológicos de obra">
+      <button type="button" class="paso-btn activo" id="btn-paso1" onclick="irPaso(1)" style="border-color:var(--c-maquinaria);">
+        <div class="paso-num" style="background:var(--c-maquinaria-bg); color:#9A6200;">01</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:#9A6200;">Paso 01</span>
+          <span class="paso-titulo">Excavación y Desplante</span>
+        </div>
+      </button>
+
+      <button type="button" class="paso-btn" id="btn-paso2" onclick="irPaso(2)">
+        <div class="paso-num" style="background:var(--c-ingenieria-bg); color:var(--c-ingenieria);">02</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:var(--c-ingenieria);">Paso 02</span>
+          <span class="paso-titulo">Cadena y Castillos</span>
+        </div>
+      </button>
+
+      <button type="button" class="paso-btn" id="btn-paso3" onclick="irPaso(3)">
+        <div class="paso-num" style="background:var(--c-terracota-bg); color:var(--c-terracota);">03</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:var(--c-terracota);">Paso 03</span>
+          <span class="paso-titulo">Barda / Muro</span>
+        </div>
+      </button>
+
+      <button type="button" class="paso-btn" id="btn-paso4" onclick="irPaso(4)">
+        <div class="paso-num" style="background:var(--c-cobre-bg); color:var(--c-cobre);">04</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:var(--c-cobre);">Paso 04</span>
+          <span class="paso-titulo">Cerramiento y Losa</span>
+        </div>
+      </button>
+
+      <button type="button" class="paso-btn" id="btn-paso5" onclick="irPaso(5)">
+        <div class="paso-num" style="background:var(--c-acabado-bg); color:var(--c-acabado);">05</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:var(--c-acabado);">Paso 05</span>
+          <span class="paso-titulo">Aplanados y Pisos</span>
+        </div>
+      </button>
+
+      <button type="button" class="paso-btn" id="btn-paso6" onclick="irPaso(6)">
+        <div class="paso-num" style="background:var(--c-resumen-bg); color:var(--c-resumen);" id="contador-conceptos">0</div>
+        <div class="paso-texto">
+          <span class="paso-etapa" style="color:var(--c-resumen);">Paso 06</span>
+          <span class="paso-titulo">Resumen y Materiales</span>
+        </div>
+      </button>
+    </nav>
+
+    <!-- ===================================================================
+         PASO 01: EXCAVACIÓN Y DESPLANTE (CEPA, PLANTILLA, CIMIENTO)
+         =================================================================== -->
+    <section id="panel-paso1" class="panel-etapa activo sin-imprimir">
+      <div class="tarjeta" style="border-top:4px solid var(--c-maquinaria);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:#9A6200;">Paso 01 · Inicio en Terreno</span>
+            <h2 class="titulo-tarjeta">Excavación de Cepa, Plantilla y Cimiento</h2>
+          </div>
+          <span class="insignia-proceso" style="color:#9A6200;">Terracería + Desplante</span>
+        </div>
+
+        <span class="etiqueta-seccion">1. Elige el subproceso de excavación o desplante</span>
+        <div class="rejilla-opciones">
+          <button type="button" class="opcion-btn seleccionada" id="p1-op-cepa" onclick="elegirPaso1('cepa')" style="border-color:var(--c-maquinaria);">
+            <svg viewBox="0 0 110 54">
+              <rect x="6" y="14" width="98" height="36" fill="#E8DFD1"/>
+              <polygon points="8,14 34,14 38,44 72,44 76,14 102,14 102,48 8,48" fill="#FEF4DC" stroke="#C84B31" stroke-width="1.5"/>
+              <line x1="38" y1="20" x2="72" y2="20" stroke="#1E1C19" stroke-width="1.2" stroke-dasharray="3 2"/>
+            </svg>
+            <div class="opcion-nombre">Excavación en Cepa</div>
+            <span class="opcion-sub">Banco + abundamiento (m³)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p1-op-plantilla" onclick="elegirPaso1('plantilla')">
+            <svg viewBox="0 0 110 54">
+              <rect x="10" y="34" width="90" height="14" fill="#D5CEC0"/>
+              <rect x="18" y="25" width="74" height="9" fill="#9AA5B1" stroke="#2A6F4E" stroke-width="1.4"/>
+            </svg>
+            <div class="opcion-nombre">Plantilla f'c 100</div>
+            <span class="opcion-sub">Espesor 5 cm (m² / m³)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p1-op-cimiento" onclick="elegirPaso1('cimiento')">
+            <svg viewBox="0 0 110 54">
+              <polygon points="16,36 42,20 94,20 68,36" fill="#B86B35" stroke="#5C3216" stroke-width="1.3"/>
+              <polygon points="16,36 68,36 68,48 16,48" fill="#8C5027" stroke="#5C3216" stroke-width="1.3"/>
+              <polygon points="94,20 68,36 68,48 94,32" fill="#6E3D1C" stroke="#5C3216" stroke-width="1.3"/>
+            </svg>
+            <div class="opcion-nombre">Cimiento Piedra / Corrido</div>
+            <span class="opcion-sub">Mampostería o concreto (m³)</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p1-concepto">Concepto en Obra</label></div>
+            <input id="p1-concepto" type="text" class="entrada-texto" value="Excavación en cepa para barda perimetral (suelo semiduro)" />
+          </div>
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p1-suelo">Tipo de Suelo / Material</label></div>
+            <select id="p1-suelo" class="entrada-num ancha" onchange="calcularPaso1()">
+              <option value="1.20">Suelo Blando (+20% abundamiento)</option>
+              <option value="1.30" selected>Suelo Semiduro / Tepetate (+30% abundamiento)</option>
+              <option value="1.45">Material Duro / Roca (+45% abundamiento)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p1-largo">Longitud (m)</label>
+              <input id="p1-largo" type="number" step="0.5" min="0.5" value="24.0" class="entrada-num" oninput="sincSlider('p1-largo','p1-largo-s'); calcularPaso1()" />
+            </div>
+            <input id="p1-largo-s" type="range" min="1" max="120" step="0.5" value="24.0" class="deslizador" oninput="sincEntrada('p1-largo-s','p1-largo'); calcularPaso1()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p1-ancho">Ancho Cepa / Base (m)</label>
+              <input id="p1-ancho" type="number" step="0.05" min="0.2" value="0.60" class="entrada-num" oninput="sincSlider('p1-ancho','p1-ancho-s'); calcularPaso1()" />
+            </div>
+            <input id="p1-ancho-s" type="range" min="0.25" max="3.0" step="0.05" value="0.60" class="deslizador" oninput="sincEntrada('p1-ancho-s','p1-ancho'); calcularPaso1()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p1-alto">Profundidad / Alto (m)</label>
+              <input id="p1-alto" type="number" step="0.05" min="0.05" value="0.80" class="entrada-num" oninput="sincSlider('p1-alto','p1-alto-s'); calcularPaso1()" />
+            </div>
+            <input id="p1-alto-s" type="range" min="0.05" max="2.5" step="0.05" value="0.80" class="deslizador" oninput="sincEntrada('p1-alto-s','p1-alto'); calcularPaso1()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="border-top:4px solid var(--c-maquinaria);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:#9A6200;">Vista en Tiempo Real · Paso 01</span>
+            <h3 class="titulo-tarjeta">Sección de Excavación y Desplante</h3>
+          </div>
+          <span class="insignia-proceso" style="color:#9A6200;" id="p1-badge">Abund. 1.30</span>
+        </div>
+
+        <div class="visor-svg"><svg id="svg-paso1" viewBox="0 0 420 195"></svg></div>
+
+        <div class="kpi-destacado" style="background:var(--c-maquinaria-bg); color:#9A6200;">
+          <div>
+            <span style="font-size:0.75rem; font-weight:800; display:block;" id="p1-hero-lbl">Volumen en Banco</span>
+            <span style="font-family:var(--fuente-mono); font-size:0.7rem;" id="p1-hero-sub">Abundado: 14.98 m³</span>
+          </div>
+          <div style="text-align:right;">
+            <span class="kpi-valor-grande" id="p1-hero-val">11.52</span>
+            <span style="font-family:var(--fuente-mono); font-weight:800;" id="p1-hero-unit">m³</span>
+          </div>
+        </div>
+
+        <div class="rejilla-kpis">
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Volumen Abundado / Neto</span>
+            <span class="kpi-dato" id="p1-k1">14.98 m³</span>
+            <span class="kpi-nota" id="p1-k1-sub">Material suelto a retirar</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Camiones Volteo (7 m³)</span>
+            <span class="kpi-dato" id="p1-k2">3 viajes</span>
+            <span class="kpi-nota" id="p1-k2-sub">ó 2 viajes de 14 m³</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Cemento (50 kg)</span>
+            <span class="kpi-dato" id="p1-k3">0 bultos</span>
+            <span class="kpi-nota" id="p1-k3-sub">Aplica en plantilla/cimiento</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Agregados / Piedra</span>
+            <span class="kpi-dato" id="p1-k4">0.00 m³</span>
+            <span class="kpi-nota" id="p1-k4-sub">Arena / Grava / Piedra</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-agregar-etapa" style="background:var(--c-maquinaria); color:#1E1C19;" onclick="agregarPaso1()">
+          <span>+ Agregar Paso 01 al Presupuesto</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PASO 02: CADENA DE DESPLANTE Y CASTILLOS
+         =================================================================== -->
+    <section id="panel-paso2" class="panel-etapa sin-imprimir">
+      <div class="tarjeta" style="border-top:4px solid var(--c-ingenieria);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-ingenieria);">Paso 02 · Confinamiento Base</span>
+            <h2 class="titulo-tarjeta">Cadena de Desplante y Castillos Armados</h2>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-ingenieria);">Concreto + Varilla + Estribos</span>
+        </div>
+
+        <span class="etiqueta-seccion">1. Selecciona el elemento de desplante o confinamiento vertical</span>
+        <div class="rejilla-opciones">
+          <button type="button" class="opcion-btn seleccionada" id="p2-op-cadena" onclick="elegirPaso2('cadena')" style="border-color:var(--c-ingenieria);">
+            <svg viewBox="0 0 110 54">
+              <polygon points="12,26 78,12 96,19 30,33" fill="#DDF3E8" stroke="#2A6F4E" stroke-width="1.4"/>
+              <polygon points="12,26 30,33 30,44 12,37" fill="#8CC4A8" stroke="#2A6F4E" stroke-width="1.3"/>
+              <polygon points="96,19 30,33 30,44 96,30" fill="#2A6F4E" stroke="#1E1C19" stroke-width="1.2"/>
+              <line x1="20" y1="30" x2="86" y2="16" stroke="#C84B31" stroke-width="2"/>
+            </svg>
+            <div class="opcion-nombre">Cadena de Desplante</div>
+            <span class="opcion-sub">Dala base 15×20 cm (m / m³)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p2-op-castillo" onclick="elegirPaso2('castillo')">
+            <svg viewBox="0 0 110 54">
+              <rect x="42" y="8" width="26" height="40" fill="#DDF3E8" stroke="#2A6F4E" stroke-width="1.5"/>
+              <line x1="47" y1="8" x2="47" y2="48" stroke="#C84B31" stroke-width="2"/>
+              <line x1="63" y1="8" x2="63" y2="48" stroke="#C84B31" stroke-width="2"/>
+              <line x1="42" y1="18" x2="68" y2="18" stroke="#1E1C19" stroke-width="1.2"/>
+              <line x1="42" y1="28" x2="68" y2="28" stroke="#1E1C19" stroke-width="1.2"/>
+              <line x1="42" y1="38" x2="68" y2="38" stroke="#1E1C19" stroke-width="1.2"/>
+            </svg>
+            <div class="opcion-nombre">Castillos Verticales</div>
+            <span class="opcion-sub">Armado + estribos @ cm</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p2-op-ambos" onclick="elegirPaso2('ambos')">
+            <svg viewBox="0 0 110 54">
+              <rect x="14" y="34" width="82" height="12" fill="#8CC4A8" stroke="#2A6F4E" stroke-width="1.4"/>
+              <rect x="24" y="10" width="12" height="24" fill="#DDF3E8" stroke="#2A6F4E" stroke-width="1.4"/>
+              <rect x="74" y="10" width="12" height="24" fill="#DDF3E8" stroke="#2A6F4E" stroke-width="1.4"/>
+            </svg>
+            <div class="opcion-nombre">Paquete Desplante</div>
+            <span class="opcion-sub">Cadena + Castillos juntos</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p2-concepto">Concepto de Desplante / Castillos</label></div>
+            <input id="p2-concepto" type="text" class="entrada-texto" value="Cadena de desplante 0.15×0.20 m con 4 varillas #3 y estribos #2 @ 15 cm" />
+          </div>
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p2-varilla">Varilla Longitudinal (armado principal)</label></div>
+            <select id="p2-varilla" class="entrada-num ancha" onchange="calcularPaso2()">
+              <option value="0.560" selected>Varilla #3 (3/8") · 0.560 kg/m</option>
+              <option value="0.994">Varilla #4 (1/2") · 0.994 kg/m</option>
+              <option value="1.552">Varilla #5 (5/8") · 1.552 kg/m</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p2-long">Long. Cadena / Alto Cast. (m)</label>
+              <input id="p2-long" type="number" step="0.2" min="0.5" value="24.0" class="entrada-num" oninput="sincSlider('p2-long','p2-long-s'); calcularPaso2()" />
+            </div>
+            <input id="p2-long-s" type="range" min="1" max="100" step="0.2" value="24.0" class="deslizador" oninput="sincEntrada('p2-long-s','p2-long'); calcularPaso2()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p2-piezas">Nº Castillos / Tramos</label>
+              <input id="p2-piezas" type="number" step="1" min="1" value="8" class="entrada-num" oninput="sincSlider('p2-piezas','p2-piezas-s'); calcularPaso2()" />
+            </div>
+            <input id="p2-piezas-s" type="range" min="1" max="40" step="1" value="8" class="deslizador" oninput="sincEntrada('p2-piezas-s','p2-piezas'); calcularPaso2()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p2-estribos">Separación Estribos @ (cm)</label>
+              <input id="p2-estribos" type="number" step="1" min="8" max="30" value="15" class="entrada-num" oninput="sincSlider('p2-estribos','p2-estribos-s'); calcularPaso2()" />
+            </div>
+            <input id="p2-estribos-s" type="range" min="8" max="30" step="1" value="15" class="deslizador" oninput="sincEntrada('p2-estribos-s','p2-estribos'); calcularPaso2()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="border-top:4px solid var(--c-ingenieria);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-ingenieria);">Vista en Tiempo Real · Paso 02</span>
+            <h3 class="titulo-tarjeta">Armado de Cadena y Castillos</h3>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-ingenieria);" id="p2-badge">f'c 200 · 1:2:3.5</span>
+        </div>
+
+        <div class="visor-svg"><svg id="svg-paso2" viewBox="0 0 420 195"></svg></div>
+
+        <div class="kpi-destacado" style="background:var(--c-ingenieria-bg); color:var(--c-ingenieria);">
+          <div>
+            <span style="font-size:0.75rem; font-weight:800; display:block;">Volumen de Concreto (f'c 200)</span>
+            <span style="font-family:var(--fuente-mono); font-size:0.7rem;" id="p2-hero-sub">Incluye 5% desperdicio</span>
+          </div>
+          <div style="text-align:right;">
+            <span class="kpi-valor-grande" id="p2-hero-val">1.13</span>
+            <span style="font-family:var(--fuente-mono); font-weight:800;">m³</span>
+          </div>
+        </div>
+
+        <div class="rejilla-kpis">
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Cemento (50 kg)</span>
+            <span class="kpi-dato" id="p2-k1">8 bultos</span>
+            <span class="kpi-nota" id="p2-k1-sub">320 kg/m³</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Arena y Grava 3/4"</span>
+            <span class="kpi-dato" id="p2-k2">0.57 / 0.81 m³</span>
+            <span class="kpi-nota">Agregados dosificados</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Acero Total (Var.+Est.)</span>
+            <span class="kpi-dato" id="p2-k3">53.76 kg</span>
+            <span class="kpi-nota" id="p2-k3-sub">Varillas + estribos</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Alambre Recocido Cal. 18</span>
+            <span class="kpi-dato" id="p2-k4">2.15 kg</span>
+            <span class="kpi-nota">4% del peso de acero</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-agregar-etapa" style="background:var(--c-ingenieria);" onclick="agregarPaso2()">
+          <span>+ Agregar Paso 02 al Presupuesto</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PASO 03: LEVANTAMIENTO DE BARDA / MURO
+         =================================================================== -->
+    <section id="panel-paso3" class="panel-etapa sin-imprimir">
+      <div class="tarjeta" style="border-top:4px solid var(--c-terracota);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-terracota);">Paso 03 · Mampostería</span>
+            <h2 class="titulo-tarjeta">Levantamiento de Barda o Muro con Mortero</h2>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-terracota);">Descuento de Vanos</span>
+        </div>
+
+        <span class="etiqueta-seccion">1. Selecciona la pieza de mampostería</span>
+        <div class="rejilla-opciones">
+          <button type="button" class="opcion-btn seleccionada" id="p3-op-tabique" onclick="elegirPaso3('tabique')" style="border-color:var(--c-terracota);">
+            <svg viewBox="0 0 110 54">
+              <polygon points="18,20 70,8 92,16 40,28" fill="#DC583B" stroke="#7C2D12" stroke-width="1.1"/>
+              <polygon points="18,20 40,28 40,44 18,36" fill="#C84B31" stroke="#7C2D12" stroke-width="1"/>
+              <polygon points="92,16 40,28 40,44 92,32" fill="#9A3412" stroke="#7C2D12" stroke-width="1"/>
+            </svg>
+            <div class="opcion-nombre">Tabique Rojo</div>
+            <span class="opcion-sub">6×12×24 cm · Junta 1.5 cm</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p3-op-block" onclick="elegirPaso3('block')">
+            <svg viewBox="0 0 110 54">
+              <polygon points="16,18 70,7 94,16 40,27" fill="#CBD5E1" stroke="#334155" stroke-width="1.1"/>
+              <polygon points="16,18 40,27 40,45 16,36" fill="#94A3B8" stroke="#334155" stroke-width="1"/>
+              <polygon points="94,16 40,27 40,45 94,34" fill="#64748B" stroke="#334155" stroke-width="1"/>
+              <polygon points="32,18 48,14 58,17 42,21" fill="#FAF7F2"/>
+              <polygon points="58,12 74,8 84,11 68,15" fill="#FAF7F2"/>
+            </svg>
+            <div class="opcion-nombre">Block Hueco 15</div>
+            <span class="opcion-sub">15×20×40 cm · ~12.5 pzas/m²</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p3-op-tabicon" onclick="elegirPaso3('tabicon')">
+            <svg viewBox="0 0 110 54">
+              <polygon points="18,19 70,8 92,16 40,27" fill="#B8A99A" stroke="#4A3F35" stroke-width="1.1"/>
+              <polygon points="18,19 40,27 40,44 18,36" fill="#8C7D6E" stroke="#4A3F35" stroke-width="1"/>
+              <polygon points="92,16 40,27 40,44 92,33" fill="#665A4E" stroke="#4A3F35" stroke-width="1"/>
+            </svg>
+            <div class="opcion-nombre">Tabicón Pesado</div>
+            <span class="opcion-sub">10×14×28 cm · Muros/bardas</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p3-concepto">Ubicación de Barda / Muro</label></div>
+            <input id="p3-concepto" type="text" class="entrada-texto" value="Levantamiento de barda perimetral de tabique rojo recocido" />
+          </div>
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p3-mortero">Mortero de Pega</label></div>
+            <select id="p3-mortero" class="entrada-num ancha" onchange="calcularPaso3()">
+              <option value="450">Mortero 1:3 (450 kg cemento/m³)</option>
+              <option value="365" selected>Mortero 1:4 (365 kg cemento/m³)</option>
+              <option value="300">Mortero 1:5 (300 kg cemento/m³)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p3-largo">Longitud Barda/Muro (m)</label>
+              <input id="p3-largo" type="number" step="0.5" min="0.5" value="24.0" class="entrada-num" oninput="sincSlider('p3-largo','p3-largo-s'); calcularPaso3()" />
+            </div>
+            <input id="p3-largo-s" type="range" min="1" max="100" step="0.5" value="24.0" class="deslizador" oninput="sincEntrada('p3-largo-s','p3-largo'); calcularPaso3()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p3-alto">Altura (m)</label>
+              <input id="p3-alto" type="number" step="0.05" min="0.4" value="2.40" class="entrada-num" oninput="sincSlider('p3-alto','p3-alto-s'); calcularPaso3()" />
+            </div>
+            <input id="p3-alto-s" type="range" min="0.5" max="5.0" step="0.05" value="2.40" class="deslizador" oninput="sincEntrada('p3-alto-s','p3-alto'); calcularPaso3()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p3-vanos" style="color:var(--c-terracota);">Descuento Vanos (m²)</label>
+              <input id="p3-vanos" type="number" step="0.2" min="0" value="3.6" class="entrada-num" oninput="sincSlider('p3-vanos','p3-vanos-s'); calcularPaso3()" />
+            </div>
+            <input id="p3-vanos-s" type="range" min="0" max="25" step="0.2" value="3.6" class="deslizador" oninput="sincEntrada('p3-vanos-s','p3-vanos'); calcularPaso3()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="border-top:4px solid var(--c-terracota);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-terracota);">Vista en Tiempo Real · Paso 03</span>
+            <h3 class="titulo-tarjeta">Aparejo de Muro y Descuento de Vanos</h3>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-terracota);" id="p3-badge">+7% Desp.</span>
+        </div>
+
+        <div class="visor-svg"><svg id="svg-paso3" viewBox="0 0 420 195"></svg></div>
+
+        <div class="kpi-destacado" style="background:var(--c-terracota-bg); color:var(--c-terracota);">
+          <div>
+            <span style="font-size:0.75rem; font-weight:800; display:block;">Superficie Neta de Muro</span>
+            <span style="font-family:var(--fuente-mono); font-size:0.7rem;" id="p3-hero-sub">Bruta: 57.60 m² - 3.60 m² vanos</span>
+          </div>
+          <div style="text-align:right;">
+            <span class="kpi-valor-grande" id="p3-hero-val">54.00</span>
+            <span style="font-family:var(--fuente-mono); font-weight:800;">m²</span>
+          </div>
+        </div>
+
+        <div class="rejilla-kpis">
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Piezas Totales (+7% Desp.)</span>
+            <span class="kpi-dato" id="p3-k1">3,022 pzas</span>
+            <span class="kpi-nota" id="p3-k1-sub">3.02 millares</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Cemento Mortero (50 kg)</span>
+            <span class="kpi-dato" id="p3-k2">9 bultos</span>
+            <span class="kpi-nota" id="p3-k2-sub">Mortero 1:4</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Arena Cernida</span>
+            <span class="kpi-dato" id="p3-k3">1.30 m³</span>
+            <span class="kpi-nota">Para junta de 1.5 cm</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Agua de Mezclado</span>
+            <span class="kpi-dato" id="p3-k4">270 L</span>
+            <span class="kpi-nota">Mezcla + hidratación</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-agregar-etapa" style="background:var(--c-terracota);" onclick="agregarPaso3()">
+          <span>+ Agregar Paso 03 al Presupuesto</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PASO 04: CADENA DE CERRAMIENTO Y LOSA
+         =================================================================== -->
+    <section id="panel-paso4" class="panel-etapa sin-imprimir">
+      <div class="tarjeta" style="border-top:4px solid var(--c-cobre);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-cobre);">Paso 04 · Remate y Cubierta</span>
+            <h2 class="titulo-tarjeta">Cadena de Cerramiento y Losa</h2>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-cobre);">Cimbra + Concreto + Acero</span>
+        </div>
+
+        <span class="etiqueta-seccion">1. Selecciona el elemento superior de cierre o cubierta</span>
+        <div class="rejilla-opciones">
+          <button type="button" class="opcion-btn seleccionada" id="p4-op-cerramiento" onclick="elegirPaso4('cerramiento')" style="border-color:var(--c-cobre);">
+            <svg viewBox="0 0 110 54">
+              <rect x="14" y="30" width="82" height="16" fill="#FCE6E0" stroke="#C84B31" stroke-width="1.2"/>
+              <rect x="14" y="16" width="82" height="14" fill="#FAECDF" stroke="#B86B35" stroke-width="1.5"/>
+              <line x1="18" y1="23" x2="92" y2="23" stroke="#2A6F4E" stroke-width="2"/>
+            </svg>
+            <div class="opcion-nombre">Cadena Cerramiento</div>
+            <span class="opcion-sub">Dala superior sobre muro (m)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p4-op-maciza" onclick="elegirPaso4('maciza')">
+            <svg viewBox="0 0 110 54">
+              <polygon points="12,24 55,10 98,24 55,38" fill="#FAECDF" stroke="#B86B35" stroke-width="1.4"/>
+              <polygon points="12,24 55,38 55,46 12,32" fill="#C88A5B" stroke="#B86B35" stroke-width="1.3"/>
+              <polygon points="98,24 55,38 55,46 98,32" fill="#9E653B" stroke="#B86B35" stroke-width="1.3"/>
+            </svg>
+            <div class="opcion-nombre">Losa Maciza</div>
+            <span class="opcion-sub">Espesor 10–15 cm (m² / m³)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p4-op-aligerada" onclick="elegirPaso4('aligerada')">
+            <svg viewBox="0 0 110 54">
+              <rect x="12" y="34" width="86" height="10" fill="#B86B35" stroke="#5C3216" stroke-width="1.2"/>
+              <rect x="20" y="22" width="22" height="12" fill="#E3E9EF" stroke="#2B3A4A" stroke-width="1.1"/>
+              <rect x="68" y="22" width="22" height="12" fill="#E3E9EF" stroke="#2B3A4A" stroke-width="1.1"/>
+              <rect x="12" y="14" width="86" height="8" fill="#FAECDF" stroke="#B86B35" stroke-width="1.3"/>
+            </svg>
+            <div class="opcion-nombre">Losa Aligerada</div>
+            <span class="opcion-sub">Nervaduras + casetón (m²)</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p4-concepto">Concepto de Cerramiento / Losa</label></div>
+            <input id="p4-concepto" type="text" class="entrada-texto" value="Cadena de cerramiento 0.15×0.20 m sobre barda perimetral" />
+          </div>
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p4-acero-cuantia">Cuantía de Acero Estimada (kg/m³)</label></div>
+            <select id="p4-acero-cuantia" class="entrada-num ancha" onchange="calcularPaso4()">
+              <option value="55">Cuantía ligera (55 kg/m³ · dala/firme)</option>
+              <option value="85" selected>Cuantía estándar (85 kg/m³ · losa/cadena)</option>
+              <option value="115">Cuantía reforzada (115 kg/m³ · voladizo)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p4-largo">Largo / Longitud (m)</label>
+              <input id="p4-largo" type="number" step="0.5" min="0.5" value="24.0" class="entrada-num" oninput="sincSlider('p4-largo','p4-largo-s'); calcularPaso4()" />
+            </div>
+            <input id="p4-largo-s" type="range" min="1" max="50" step="0.5" value="24.0" class="deslizador" oninput="sincEntrada('p4-largo-s','p4-largo'); calcularPaso4()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p4-ancho">Ancho (m)</label>
+              <input id="p4-ancho" type="number" step="0.05" min="0.1" value="0.15" class="entrada-num" oninput="sincSlider('p4-ancho','p4-ancho-s'); calcularPaso4()" />
+            </div>
+            <input id="p4-ancho-s" type="range" min="0.10" max="20" step="0.05" value="0.15" class="deslizador" oninput="sincEntrada('p4-ancho-s','p4-ancho'); calcularPaso4()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p4-espesor">Peralte / Espesor (m)</label>
+              <input id="p4-espesor" type="number" step="0.01" min="0.08" max="0.60" value="0.20" class="entrada-num" oninput="sincSlider('p4-espesor','p4-espesor-s'); calcularPaso4()" />
+            </div>
+            <input id="p4-espesor-s" type="range" min="0.08" max="0.60" step="0.01" value="0.20" class="deslizador" oninput="sincEntrada('p4-espesor-s','p4-espesor'); calcularPaso4()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="border-top:4px solid var(--c-cobre);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-cobre);">Vista en Tiempo Real · Paso 04</span>
+            <h3 class="titulo-tarjeta">Esquema de Cerramiento y Losa</h3>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-cobre);" id="p4-badge">f'c 200 · +5% Desp.</span>
+        </div>
+
+        <div class="visor-svg"><svg id="svg-paso4" viewBox="0 0 420 195"></svg></div>
+
+        <div class="kpi-destacado" style="background:var(--c-cobre-bg); color:var(--c-cobre);">
+          <div>
+            <span style="font-size:0.75rem; font-weight:800; display:block;">Volumen de Concreto</span>
+            <span style="font-family:var(--fuente-mono); font-size:0.7rem;" id="p4-hero-sub">Incluye 5% desperdicio</span>
+          </div>
+          <div style="text-align:right;">
+            <span class="kpi-valor-grande" id="p4-hero-val">0.76</span>
+            <span style="font-family:var(--fuente-mono); font-weight:800;">m³</span>
+          </div>
+        </div>
+
+        <div class="rejilla-kpis">
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Cemento (50 kg)</span>
+            <span class="kpi-dato" id="p4-k1">5 bultos</span>
+            <span class="kpi-nota">320 kg/m³</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Arena y Grava 3/4"</span>
+            <span class="kpi-dato" id="p4-k2">0.38 / 0.54 m³</span>
+            <span class="kpi-nota">Agregados dosificados</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Acero Estimado</span>
+            <span class="kpi-dato" id="p4-k3">64.26 kg</span>
+            <span class="kpi-nota" id="p4-k3-sub">+ 2.57 kg alambre</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta">Área / Cimbra Ref.</span>
+            <span class="kpi-dato" id="p4-k4">3.60 m²</span>
+            <span class="kpi-nota" id="p4-k4-sub">Superficie de contacto</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-agregar-etapa" style="background:var(--c-cobre);" onclick="agregarPaso4()">
+          <span>+ Agregar Paso 04 al Presupuesto</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PASO 05: APLANADOS, PISOS Y ACABADOS
+         =================================================================== -->
+    <section id="panel-paso5" class="panel-etapa sin-imprimir">
+      <div class="tarjeta" style="border-top:4px solid var(--c-acabado);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-acabado);">Paso 05 · Acabados Finales</span>
+            <h2 class="titulo-tarjeta">Aplanados, Firme, Piso Cerámico y Pintura</h2>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-acabado);">Acabados de Obra</span>
+        </div>
+
+        <span class="etiqueta-seccion">1. Elige el acabado a cuantificar</span>
+        <div class="rejilla-opciones">
+          <button type="button" class="opcion-btn seleccionada" id="p5-op-aplanado" onclick="elegirPaso5('aplanado')" style="border-color:var(--c-acabado);">
+            <svg viewBox="0 0 110 54">
+              <rect x="24" y="10" width="24" height="36" fill="#C84B31"/>
+              <rect x="48" y="10" width="18" height="36" fill="#D5CEC0"/>
+              <rect x="66" y="10" width="8" height="36" fill="#1F7A8C"/>
+            </svg>
+            <div class="opcion-nombre">Aplanado / Repellado</div>
+            <span class="opcion-sub">Mortero 1:4 + afine (m²)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p5-op-piso" onclick="elegirPaso5('piso')">
+            <svg viewBox="0 0 110 54">
+              <rect x="14" y="34" width="82" height="12" fill="#9AA5B1"/>
+              <rect x="14" y="20" width="39" height="14" fill="#DDF0F4" stroke="#1F7A8C" stroke-width="1.3"/>
+              <rect x="57" y="20" width="39" height="14" fill="#DDF0F4" stroke="#1F7A8C" stroke-width="1.3"/>
+            </svg>
+            <div class="opcion-nombre">Piso Cerámico</div>
+            <span class="opcion-sub">Loseta + pegazulejo (m²)</span>
+          </button>
+
+          <button type="button" class="opcion-btn" id="p5-op-pintura" onclick="elegirPaso5('pintura')">
+            <svg viewBox="0 0 110 54">
+              <rect x="26" y="12" width="38" height="14" rx="4" fill="#1F7A8C"/>
+              <path d="M64 19 h12 v14 h-28 v12" fill="none" stroke="#1E1C19" stroke-width="2"/>
+            </svg>
+            <div class="opcion-nombre">Pintura Vinílica</div>
+            <span class="opcion-sub">Sellador + 2 manos (m²)</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p5-concepto">Concepto de Acabado</label></div>
+            <input id="p5-concepto" type="text" class="entrada-texto" value="Aplanado fino de mortero 1:4 a plomo y regla en barda" />
+          </div>
+          <div class="caja-control">
+            <div class="caja-control-arriba"><label for="p5-caras">Caras / Formato</label></div>
+            <select id="p5-caras" class="entrada-num ancha" onchange="calcularPaso5()">
+              <option value="1">1 Cara (una cara de barda / muro / piso)</option>
+              <option value="2" selected>2 Caras (ambas caras de barda o muro)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p5-area">Superficie Base (m²)</label>
+              <input id="p5-area" type="number" step="0.5" min="1" value="54.0" class="entrada-num" oninput="sincSlider('p5-area','p5-area-s'); calcularPaso5()" />
+            </div>
+            <input id="p5-area-s" type="range" min="2" max="300" step="0.5" value="54.0" class="deslizador" oninput="sincEntrada('p5-area-s','p5-area'); calcularPaso5()" />
+          </div>
+
+          <div class="caja-control">
+            <div class="caja-control-arriba">
+              <label for="p5-espesor">Espesor Aplanado (cm)</label>
+              <input id="p5-espesor" type="number" step="0.1" min="1.0" max="3.0" value="2.0" class="entrada-num" oninput="sincSlider('p5-espesor','p5-espesor-s'); calcularPaso5()" />
+            </div>
+            <input id="p5-espesor-s" type="range" min="1.0" max="3.0" step="0.1" value="2.0" class="deslizador" oninput="sincEntrada('p5-espesor-s','p5-espesor'); calcularPaso5()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="border-top:4px solid var(--c-acabado);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-acabado);">Vista en Tiempo Real · Paso 05</span>
+            <h3 class="titulo-tarjeta">Capas de Acabado y Rendimientos</h3>
+          </div>
+          <span class="insignia-proceso" style="color:var(--c-acabado);" id="p5-badge">108.00 m²</span>
+        </div>
+
+        <div class="visor-svg"><svg id="svg-paso5" viewBox="0 0 420 195"></svg></div>
+
+        <div class="kpi-destacado" style="background:var(--c-acabado-bg); color:var(--c-acabado);">
+          <div>
+            <span style="font-size:0.75rem; font-weight:800; display:block;">Superficie Total a Trabajar</span>
+            <span style="font-family:var(--fuente-mono); font-size:0.7rem;" id="p5-hero-sub">54.00 m² × 2 caras</span>
+          </div>
+          <div style="text-align:right;">
+            <span class="kpi-valor-grande" id="p5-hero-val">108.00</span>
+            <span style="font-family:var(--fuente-mono); font-weight:800;">m²</span>
+          </div>
+        </div>
+
+        <div class="rejilla-kpis">
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta" id="p5-k1-lbl">Cemento (50 kg)</span>
+            <span class="kpi-dato" id="p5-k1">18 bultos</span>
+            <span class="kpi-nota" id="p5-k1-sub">Mortero 1:4</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta" id="p5-k2-lbl">Arena Cernida</span>
+            <span class="kpi-dato" id="p5-k2">2.73 m³</span>
+            <span class="kpi-nota" id="p5-k2-sub">+10% rebote</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta" id="p5-k3-lbl">Material Complementario</span>
+            <span class="kpi-dato" id="p5-k3">0 sacos</span>
+            <span class="kpi-nota" id="p5-k3-sub">Pegazulejo / Pintura</span>
+          </div>
+          <div class="kpi-caja">
+            <span class="kpi-etiqueta" id="p5-k4-lbl">Agua / Rendimiento</span>
+            <span class="kpi-dato" id="p5-k4">570 L</span>
+            <span class="kpi-nota" id="p5-k4-sub">Mezclado y curado</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-agregar-etapa" style="background:var(--c-acabado);" onclick="agregarPaso5()">
+          <span>+ Agregar Paso 05 al Presupuesto</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PASO 06: RESUMEN GENERAL / PRESUPUESTO Y EXPLOSIÓN DE MATERIALES
+         =================================================================== -->
+    <section id="panel-paso6" class="panel-etapa ancho-total">
+      <div class="tarjeta" style="border-top:4px solid var(--c-resumen);">
+        <div class="tarjeta-cabecera">
+          <div>
+            <span class="etiqueta-paso" style="color:var(--c-resumen);">Paso 06 · Cierre de Obra</span>
+            <h2 class="titulo-tarjeta">Resumen General, Presupuesto y Explosión de Materiales</h2>
+          </div>
+          <div class="sin-imprimir" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-verde" onclick="cargarEjemploObra()">
+              <span>🏗️ Cargar Ejemplo de Obra</span>
+            </button>
+            <button type="button" class="btn" onclick="exportarCSV()">
+              <span>📊 Exportar CSV</span>
+            </button>
+            <button type="button" class="btn btn-oscuro" onclick="imprimirPDF()">
+              <span>🖨️ Imprimir / PDF</span>
+            </button>
+            <button type="button" class="btn btn-quitar" style="border:1px solid #F5B7AA;" onclick="limpiarTodo()">
+              <span>🗑️ Limpiar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 Tarjetas Resumen -->
+        <div class="tarjetas-resumen-6">
+          <div class="mini-resumen" style="border-left-color:var(--c-ingenieria);">
+            <div class="mini-resumen-lbl">Cemento (50 kg)</div>
+            <div class="mini-resumen-val" id="res-cem">0 bultos</div>
+            <div class="mini-resumen-sub" id="res-cem-ton">0.00 Ton</div>
+          </div>
+          <div class="mini-resumen" style="border-left-color:var(--c-maquinaria);">
+            <div class="mini-resumen-lbl">Arena y Grava</div>
+            <div class="mini-resumen-val" id="res-agr">0.00 m³</div>
+            <div class="mini-resumen-sub" id="res-agr-det">0.00 A · 0.00 G</div>
+          </div>
+          <div class="mini-resumen" style="border-left-color:var(--c-terracota);">
+            <div class="mini-resumen-lbl">Acero Refuerzo</div>
+            <div class="mini-resumen-val" id="res-ace">0.0 kg</div>
+            <div class="mini-resumen-sub" id="res-ace-det">Alambre cal. 18</div>
+          </div>
+          <div class="mini-resumen" style="border-left-color:var(--c-cobre);">
+            <div class="mini-resumen-lbl">Piezas Muro</div>
+            <div class="mini-resumen-val" id="res-pzas">0 pzas</div>
+            <div class="mini-resumen-sub" id="res-pzas-det">0.00 millares</div>
+          </div>
+          <div class="mini-resumen" style="border-left-color:var(--c-acabado);">
+            <div class="mini-resumen-lbl">Piso / Pintura</div>
+            <div class="mini-resumen-val" id="res-aca">0 cj / 0 L</div>
+            <div class="mini-resumen-sub" id="res-aca-det">Pegazulejo / Vinílica</div>
+          </div>
+          <div class="mini-resumen" style="border-left-color:var(--c-resumen); background:var(--bg-marfil);">
+            <div class="mini-resumen-lbl">Total c/ IVA</div>
+            <div class="mini-resumen-val" style="color:var(--c-ingenieria);" id="res-total">$0.00</div>
+            <div class="mini-resumen-sub" id="res-cd">CD: $0.00</div>
+          </div>
+        </div>
+
+        <!-- Tabla 1: Conceptos Agregados por Paso -->
+        <h3 style="font-size:1rem; font-weight:800; margin-bottom:8px;">
+          1. Conceptos por Etapa Constructiva (Precio Unitario Editable)
+        </h3>
+        <div class="tabla-envoltura">
+          <table class="tabla-obra">
+            <thead>
+              <tr>
+                <th>Etapa</th>
+                <th>Concepto y Detalle</th>
+                <th>Unidad</th>
+                <th class="col-der">Cantidad</th>
+                <th class="col-der">P.U. ($)</th>
+                <th class="col-der">Importe ($)</th>
+                <th class="sin-imprimir" style="text-align:center;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-conceptos"></tbody>
+            <tfoot id="tfoot-conceptos"></tfoot>
+          </table>
+        </div>
+
+        <!-- Tabla 2: Explosión Global de Materiales -->
+        <h3 style="font-size:1rem; font-weight:800; margin-bottom:8px;">
+          2. Explosión Global de Materiales para Compra en Obra
+        </h3>
+        <div class="tabla-envoltura">
+          <table class="tabla-obra">
+            <thead>
+              <tr>
+                <th>Material / Insumo</th>
+                <th>Unidad</th>
+                <th class="col-der">Cantidad Total</th>
+                <th class="col-der">Precio Unit. ($)</th>
+                <th class="col-der">Subtotal ($)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-materiales"></tbody>
+          </table>
+        </div>
+
+        <!-- Firmas para Impresión -->
+        <div class="firmas-impresion">
+          <div>
+            <div class="linea-firma" id="firma-alumno">Alumno / Equipo</div>
+            <div style="color:#59554C; font-size:0.72rem;">Elaboró Cuantificación</div>
+          </div>
+          <div>
+            <div class="linea-firma">Docente / Revisor</div>
+            <div style="color:#59554C; font-size:0.72rem;">Revisó Trabajo Final</div>
+          </div>
+          <div>
+            <div class="linea-firma">Sello / Vo. Bo.</div>
+            <div style="color:#59554C; font-size:0.72rem;">Departamento Académico</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="sin-imprimir" style="background:#FFFFFF; border-top:1.5px solid var(--borde-caliza); padding:12px 18px; font-family:var(--fuente-mono); font-size:0.72rem; color:var(--texto-grafito);">
+    <div class="contenedor" style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px;">
+      <span>Cuantificación Cronológica de Obra</span>
+      <span>Excavación · Desplante · Castillos · Barda/Muro · Losa · Acabados</span>
+    </div>
+  </footer>
+
+  <!-- Barra de Acción Rápida Inferior Exclusiva para Celular -->
+  <nav class="barra-movil-inferior sin-imprimir" aria-label="Navegación rápida móvil">
+    <button type="button" class="btn-movil" id="movil-btn-ant" onclick="pasoAnteriorMovil()">
+      <span>← Ant.</span>
+    </button>
+    <button type="button" class="btn-movil btn-movil-agregar" id="movil-btn-add" onclick="agregarPasoActualMovil()">
+      <span>+ Agregar Paso</span>
+    </button>
+    <button type="button" class="btn-movil" id="movil-btn-sig" onclick="pasoSiguienteMovil()">
+      <span>Sig. →</span>
+    </button>
+    <button type="button" class="btn-movil btn-movil-resumen" onclick="irPaso(6)">
+      <span>Resumen (<span id="movil-contador">0</span>)</span>
+    </button>
+  </nav>
+
+  <!-- =====================================================================
+       MOTOR JAVASCRIPT PURO (CÁLCULOS, VISORES SVG Y PRESUPUESTO)
+       ===================================================================== -->
+  <script>
+    let pasoActual = 1;
+    let conceptosObra = [];
+    let p1Modo = 'cepa';
+    let p2Modo = 'cadena';
+    let p3Modo = 'tabique';
+    let p4Modo = 'cerramiento';
+    let p5Modo = 'aplanado';
+
+    let borradores = { p1: null, p2: null, p3: null, p4: null, p5: null };
+
+    const PRECIOS_INSUMOS = {
+      cemento: 265.00,
+      arena: 480.00,
+      grava: 520.00,
+      piedra: 460.00,
+      acero: 24.50,
+      alambre: 32.00,
+      tabique: 4.80,
+      block: 16.50,
+      tabicon: 8.20,
+      pisoCaja: 360.00,
+      pegazulejo: 185.00,
+      pintura: 95.00
+    };
+
+    const ESTILO_PASO = {
+      'Paso 01': { bg: '#FEF4DC', texto: '#9A6200' },
+      'Paso 02': { bg: '#DDF3E8', texto: '#2A6F4E' },
+      'Paso 03': { bg: '#FCE6E0', texto: '#C84B31' },
+      'Paso 04': { bg: '#FAECDF', texto: '#B86B35' },
+      'Paso 05': { bg: '#DDF0F4', texto: '#1F7A8C' }
+    };
+
+    const PIEZAS_MURO = {
+      tabique: { nombre: 'Tabique Rojo (6×12×24 cm)', l: 0.24, h: 0.06, e: 0.12, fill: '#C84B31', stroke: '#7C2D12', pu: 485, key: 'tabique' },
+      block:   { nombre: 'Block Hueco (15×20×40 cm)', l: 0.40, h: 0.20, e: 0.15, fill: '#94A3B8', stroke: '#334155', pu: 430, key: 'block' },
+      tabicon: { nombre: 'Tabicón Pesado (10×14×28 cm)', l: 0.28, h: 0.10, e: 0.14, fill: '#8C7D6E', stroke: '#4A3F35', pu: 460, key: 'tabicon' }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      calcularPaso1();
+      calcularPaso2();
+      calcularPaso3();
+      calcularPaso4();
+      calcularPaso5();
+      cargarGuardado();
+      renderResumen();
+      sincronizarMeta();
+    });
+
+    function sincSlider(inpId, sldId) {
+      const v = document.getElementById(inpId).value;
+      if (v !== '') document.getElementById(sldId).value = v;
+    }
+
+    function sincEntrada(sldId, inpId) {
+      document.getElementById(inpId).value = document.getElementById(sldId).value;
+    }
+
+    function sincronizarMeta() {
+      const obra = document.getElementById('meta-obra').value;
+      const alumno = document.getElementById('meta-alumno').value;
+      const curso = document.getElementById('meta-curso').value;
+      document.getElementById('imp-obra').textContent = obra;
+      document.getElementById('imp-alumno').textContent = alumno;
+      document.getElementById('imp-curso').textContent = curso;
+      document.getElementById('firma-alumno').textContent = alumno;
+    }
+
+    function irPaso(num) {
+      pasoActual = num;
+      const colores = {
+        1: '#E09F1F',
+        2: '#2A6F4E',
+        3: '#C84B31',
+        4: '#B86B35',
+        5: '#1F7A8C',
+        6: '#2B3A4A'
+      };
+      for (let i = 1; i <= 6; i++) {
+        const panel = document.getElementById(`panel-paso${i}`);
+        const btn = document.getElementById(`btn-paso${i}`);
+        const activo = i === num;
+        panel.classList.toggle('activo', activo);
+        btn.classList.toggle('activo', activo);
+        btn.style.borderColor = activo ? colores[i] : 'var(--borde-caliza)';
+        if (activo && btn.scrollIntoView) {
+          btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+      actualizarBarraMovil();
+      if (num === 6) renderResumen();
+    }
+
+    function pasoAnteriorMovil() {
+      irPaso(pasoActual > 1 ? pasoActual - 1 : 6);
+    }
+
+    function pasoSiguienteMovil() {
+      irPaso(pasoActual < 6 ? pasoActual + 1 : 1);
+    }
+
+    function agregarPasoActualMovil() {
+      if (pasoActual === 1) agregarPaso1();
+      else if (pasoActual === 2) agregarPaso2();
+      else if (pasoActual === 3) agregarPaso3();
+      else if (pasoActual === 4) agregarPaso4();
+      else if (pasoActual === 5) agregarPaso5();
+      else cargarEjemploObra();
+    }
+
+    function actualizarBarraMovil() {
+      const btnAdd = document.getElementById('movil-btn-add');
+      if (!btnAdd) return;
+      if (pasoActual >= 1 && pasoActual <= 5) {
+        btnAdd.innerHTML = `<span>+ Agregar Paso 0${pasoActual}</span>`;
+      } else {
+        btnAdd.innerHTML = `<span>🏗️ Cargar Ejemplo</span>`;
+      }
+    }
+
+    function insumoVacio() {
+      return {
+        cemento: 0, arena: 0, grava: 0, piedra: 0,
+        acero: 0, alambre: 0,
+        tabique: 0, block: 0, tabicon: 0,
+        pisoCaja: 0, pegazulejo: 0, pintura: 0
+      };
+    }
+
+    // =====================================================================
+    // PASO 01: EXCAVACIÓN Y DESPLANTE
+    // =====================================================================
+    function elegirPaso1(modo) {
+      p1Modo = modo;
+      ['cepa', 'plantilla', 'cimiento'].forEach(m => {
+        const el = document.getElementById(`p1-op-${m}`);
+        el.classList.toggle('seleccionada', m === modo);
+        el.style.borderColor = m === modo ? 'var(--c-maquinaria)' : 'var(--borde-caliza)';
+      });
+      if (modo === 'cepa') {
+        document.getElementById('p1-concepto').value = 'Excavación en cepa para barda perimetral (suelo semiduro)';
+        document.getElementById('p1-alto').value = 0.80;
+      } else if (modo === 'plantilla') {
+        document.getElementById('p1-concepto').value = "Plantilla de concreto pobre f'c = 100 kg/cm² espesor 5 cm";
+        document.getElementById('p1-alto').value = 0.05;
+      } else {
+        document.getElementById('p1-concepto').value = 'Cimiento de mampostería de piedra braza asentada con mortero';
+        document.getElementById('p1-alto').value = 0.60;
+      }
+      sincSlider('p1-alto', 'p1-alto-s');
+      calcularPaso1();
+    }
+
+    function calcularPaso1() {
+      const L = Math.max(0.2, parseFloat(document.getElementById('p1-largo').value) || 0);
+      const B = Math.max(0.2, parseFloat(document.getElementById('p1-ancho').value) || 0);
+      const H = Math.max(0.02, parseFloat(document.getElementById('p1-alto').value) || 0);
+      const abund = parseFloat(document.getElementById('p1-suelo').value) || 1.30;
+
+      const area = L * B;
+      const volBanco = area * H;
+      const volAbund = volBanco * abund;
+
+      document.getElementById('p1-badge').textContent = `Abund. ${abund.toFixed(2)}`;
+
+      let unidad = 'm³', cantidad = volBanco, pu = 245;
+      const ins = insumoVacio();
+
+      if (p1Modo === 'cepa') {
+        unidad = 'm³';
+        cantidad = volBanco;
+        pu = 245;
+        document.getElementById('p1-hero-lbl').textContent = 'Volumen Excavado en Banco';
+        document.getElementById('p1-hero-val').textContent = volBanco.toFixed(2);
+        document.getElementById('p1-hero-unit').textContent = 'm³';
+        document.getElementById('p1-hero-sub').textContent = `Abundado (×${abund}): ${volAbund.toFixed(2)} m³`;
+        document.getElementById('p1-k1').textContent = `${volAbund.toFixed(2)} m³`;
+        document.getElementById('p1-k1-sub').textContent = 'Volumen suelto en camión';
+        document.getElementById('p1-k2').textContent = `${Math.ceil(volAbund / 7)} viajes`;
+        document.getElementById('p1-k2-sub').textContent = `ó ${Math.ceil(volAbund / 14)} viajes de 14 m³`;
+        document.getElementById('p1-k3').textContent = '0 bultos';
+        document.getElementById('p1-k4').textContent = '0.00 m³';
+      } else if (p1Modo === 'plantilla') {
+        unidad = 'm²';
+        cantidad = area;
+        pu = 165;
+        const volPlant = area * H * 1.05;
+        ins.cemento = Math.ceil((volPlant * 210) / 50);
+        ins.arena = volPlant * 0.56;
+        ins.grava = volPlant * 0.84;
+
+        document.getElementById('p1-hero-lbl').textContent = 'Superficie de Plantilla';
+        document.getElementById('p1-hero-val').textContent = area.toFixed(2);
+        document.getElementById('p1-hero-unit').textContent = 'm²';
+        document.getElementById('p1-hero-sub').textContent = `Vol. concreto (+5%): ${volPlant.toFixed(2)} m³`;
+        document.getElementById('p1-k1').textContent = `${volPlant.toFixed(2)} m³`;
+        document.getElementById('p1-k1-sub').textContent = 'Concreto pobre 1:3:6';
+        document.getElementById('p1-k2').textContent = '0 viajes';
+        document.getElementById('p1-k2-sub').textContent = 'Sin retiro de tierra';
+        document.getElementById('p1-k3').textContent = `${ins.cemento} bultos`;
+        document.getElementById('p1-k4').textContent = `${(ins.arena + ins.grava).toFixed(2)} m³`;
+        document.getElementById('p1-k4-sub').textContent = `${ins.arena.toFixed(2)} A · ${ins.grava.toFixed(2)} G`;
+      } else {
+        unidad = 'm³';
+        cantidad = volBanco * 1.05;
+        pu = 1680;
+        ins.piedra = cantidad * 0.72;
+        ins.cemento = Math.ceil((cantidad * 140) / 50);
+        ins.arena = cantidad * 0.36;
+
+        document.getElementById('p1-hero-lbl').textContent = 'Volumen de Cimiento';
+        document.getElementById('p1-hero-val').textContent = cantidad.toFixed(2);
+        document.getElementById('p1-hero-unit').textContent = 'm³';
+        document.getElementById('p1-hero-sub').textContent = `Base ${L.toFixed(1)}m × ${B.toFixed(2)}m × ${H.toFixed(2)}m + 5%`;
+        document.getElementById('p1-k1').textContent = `${cantidad.toFixed(2)} m³`;
+        document.getElementById('p1-k1-sub').textContent = 'Mampostería / desplante';
+        document.getElementById('p1-k2').textContent = `${ins.piedra.toFixed(2)} m³`;
+        document.getElementById('p1-k2-sub').textContent = 'Piedra braza (72%)';
+        document.getElementById('p1-k3').textContent = `${ins.cemento} bultos`;
+        document.getElementById('p1-k4').textContent = `${ins.arena.toFixed(2)} m³`;
+        document.getElementById('p1-k4-sub').textContent = 'Arena de junteo';
+      }
+
+      dibujarPaso1SVG(L, B, H, volBanco, volAbund);
+
+      borradores.p1 = {
+        paso: 'Paso 01',
+        concepto: document.getElementById('p1-concepto').value.trim() || 'Excavación y desplante',
+        detalle: `${L.toFixed(2)}m × ${B.toFixed(2)}m × ${H.toFixed(2)}m`,
+        unidad,
+        cantidad,
+        pu,
+        insumos: ins
+      };
+    }
+
+    function dibujarPaso1SVG(L, B, H, volBanco, volAbund) {
+      const svg = document.getElementById('svg-paso1');
+      const wCepa = Math.max(56, Math.min(132, B * 95));
+      const hCepa = Math.max(24, Math.min(78, H * 65));
+      const cx = 148, yNivel = 58;
+      const x1 = cx - wCepa / 2, x2 = cx + wCepa / 2, yBot = yNivel + hCepa;
+
+      svg.innerHTML = `
+        <rect x="16" y="${yNivel}" width="262" height="114" fill="#E8DFD1" stroke="#B5AA98"/>
+        <line x1="16" y1="${yNivel}" x2="278" y2="${yNivel}" stroke="#2A6F4E" stroke-width="2.5"/>
+        <text x="22" y="${yNivel - 6}" fill="#2A6F4E" font-size="8.5" font-family="monospace" font-weight="bold">TERRENO NATURAL</text>
+        <polygon points="${x1 - 4},${yNivel} ${x2 + 4},${yNivel} ${x2},${yBot} ${x1},${yBot}"
+          fill="${p1Modo === 'cepa' ? '#FEF4DC' : (p1Modo === 'plantilla' ? '#DDF3E8' : '#FAECDF')}"
+          stroke="#C84B31" stroke-width="1.8"/>
+        <line x1="${x1}" y1="${yBot + 10}" x2="${x2}" y2="${yBot + 10}" stroke="#1E1C19" stroke-width="1.2"/>
+        <text x="${cx}" y="${yBot + 22}" fill="#1E1C19" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">B=${B.toFixed(2)}m</text>
+        <text x="${x2 + 10}" y="${(yNivel + yBot)/2 + 3}" fill="#C84B31" font-size="9" font-family="monospace" font-weight="bold">H=${H.toFixed(2)}m</text>
+
+        <rect x="290" y="16" width="118" height="162" rx="10" fill="#FFFFFF" stroke="#D8D0C2"/>
+        <text x="349" y="34" fill="#59554C" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">PASO 01 · CUBICACIÓN</text>
+        <text x="349" y="52" fill="#9A6200" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">L = ${L.toFixed(1)} m</text>
+        <text x="349" y="82" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Volumen base:</text>
+        <text x="349" y="98" fill="#1E1C19" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${volBanco.toFixed(2)} m³</text>
+        <text x="349" y="124" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Con abundamiento:</text>
+        <text x="349" y="140" fill="#C84B31" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${volAbund.toFixed(2)} m³</text>
+        <text x="349" y="166" fill="#2A6F4E" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Volteo 7 m³</text>
+      `;
+    }
+
+    function agregarPaso1() {
+      calcularPaso1();
+      guardarConcepto(borradores.p1);
+    }
+
+    // =====================================================================
+    // PASO 02: CADENA DE DESPLANTE Y CASTILLOS
+    // =====================================================================
+    function elegirPaso2(modo) {
+      p2Modo = modo;
+      ['cadena', 'castillo', 'ambos'].forEach(m => {
+        const el = document.getElementById(`p2-op-${m}`);
+        el.classList.toggle('seleccionada', m === modo);
+        el.style.borderColor = m === modo ? 'var(--c-ingenieria)' : 'var(--borde-caliza)';
+      });
+      if (modo === 'cadena') {
+        document.getElementById('p2-concepto').value = 'Cadena de desplante 0.15×0.20 m con 4 varillas #3 y estribos #2 @ 15 cm';
+        document.getElementById('p2-long').value = 24.0;
+        document.getElementById('p2-piezas').value = 8;
+      } else if (modo === 'castillo') {
+        document.getElementById('p2-concepto').value = 'Castillos K-1 de 0.15×0.15 m armados con 4 varillas #3 y estribos @ 15 cm';
+        document.getElementById('p2-long').value = 2.40;
+        document.getElementById('p2-piezas').value = 10;
+      } else {
+        document.getElementById('p2-concepto').value = 'Cadena de desplante y castillos armados en barda perimetral';
+        document.getElementById('p2-long').value = 24.0;
+        document.getElementById('p2-piezas').value = 10;
+      }
+      sincSlider('p2-long', 'p2-long-s');
+      sincSlider('p2-piezas', 'p2-piezas-s');
+      calcularPaso2();
+    }
+
+    function calcularPaso2() {
+      const longElem = Math.max(0.5, parseFloat(document.getElementById('p2-long').value) || 0);
+      const piezas = Math.max(1, parseInt(document.getElementById('p2-piezas').value) || 1);
+      const sepCm = Math.max(8, parseFloat(document.getElementById('p2-estribos').value) || 15);
+      const pesoVarilla = parseFloat(document.getElementById('p2-varilla').value) || 0.560;
+
+      let volConcreto = 0, longVarillaTotal = 0, numEstribos = 0, longEstribos = 0;
+
+      if (p2Modo === 'cadena') {
+        volConcreto = longElem * 0.15 * 0.20 * 1.05;
+        longVarillaTotal = longElem * 4 * 1.08;
+        numEstribos = Math.ceil((longElem * 100) / sepCm);
+        longEstribos = numEstribos * 0.54;
+      } else if (p2Modo === 'castillo') {
+        volConcreto = piezas * 0.15 * 0.15 * longElem * 1.05;
+        longVarillaTotal = piezas * 4 * longElem * 1.08;
+        numEstribos = piezas * (Math.ceil((longElem * 100) / sepCm) + 1);
+        longEstribos = numEstribos * 0.52;
+      } else {
+        const altoCast = 2.40;
+        volConcreto = (longElem * 0.15 * 0.20 + piezas * 0.15 * 0.15 * altoCast) * 1.05;
+        longVarillaTotal = (longElem * 4 + piezas * 4 * altoCast) * 1.08;
+        numEstribos = Math.ceil((longElem * 100) / sepCm) + piezas * (Math.ceil((altoCast * 100) / sepCm) + 1);
+        longEstribos = numEstribos * 0.53;
+      }
+
+      const ins = insumoVacio();
+      ins.cemento = Math.ceil((volConcreto * 320) / 50);
+      ins.arena = volConcreto * 0.50;
+      ins.grava = volConcreto * 0.72;
+      ins.acero = longVarillaTotal * pesoVarilla + longEstribos * 0.384;
+      ins.alambre = ins.acero * 0.04;
+
+      document.getElementById('p2-hero-val').textContent = volConcreto.toFixed(2);
+      document.getElementById('p2-hero-sub').textContent = `${numEstribos} estribos @ ${sepCm} cm · +5% desp.`;
+      document.getElementById('p2-k1').textContent = `${ins.cemento} bultos`;
+      document.getElementById('p2-k2').textContent = `${ins.arena.toFixed(2)} / ${ins.grava.toFixed(2)} m³`;
+      document.getElementById('p2-k3').textContent = `${ins.acero.toFixed(1)} kg`;
+      document.getElementById('p2-k3-sub').textContent = `${numEstribos} estribos + varillas`;
+      document.getElementById('p2-k4').textContent = `${ins.alambre.toFixed(2)} kg`;
+
+      dibujarPaso2SVG(longElem, piezas, sepCm, volConcreto, ins.acero);
+
+      borradores.p2 = {
+        paso: 'Paso 02',
+        concepto: document.getElementById('p2-concepto').value.trim() || 'Cadena de desplante y castillos',
+        detalle: `Concreto ${volConcreto.toFixed(2)} m³ + Acero ${ins.acero.toFixed(1)} kg (@ ${sepCm} cm)`,
+        unidad: 'm³',
+        cantidad: volConcreto,
+        pu: 3450,
+        insumos: ins
+      };
+    }
+
+    function dibujarPaso2SVG(longElem, piezas, sepCm, volConcreto, aceroKg) {
+      const svg = document.getElementById('svg-paso2');
+      let estribosSVG = '';
+      for (let x = 35; x <= 255; x += 22) {
+        estribosSVG += `<rect x="${x}" y="94" width="12" height="24" rx="2" fill="none" stroke="#1E1C19" stroke-width="1.5"/>`;
+      }
+      svg.innerHTML = `
+        <rect x="22" y="90" width="250" height="32" rx="4" fill="#DDF3E8" stroke="#2A6F4E" stroke-width="1.8"/>
+        <line x1="26" y1="97" x2="268" y2="97" stroke="#C84B31" stroke-width="2.2"/>
+        <line x1="26" y1="115" x2="268" y2="115" stroke="#C84B31" stroke-width="2.2"/>
+        ${estribosSVG}
+        <text x="147" y="140" fill="#2A6F4E" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">CADENA / ARMADO · ESTRIBOS @ ${sepCm} cm</text>
+
+        <rect x="288" y="16" width="120" height="162" rx="10" fill="#FFFFFF" stroke="#D8D0C2"/>
+        <text x="348" y="34" fill="#59554C" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">PASO 02 · RESUMEN</text>
+        <text x="348" y="54" fill="#2A6F4E" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">Pzas: ${piezas}</text>
+        <text x="348" y="82" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Concreto:</text>
+        <text x="348" y="98" fill="#1E1C19" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${volConcreto.toFixed(2)} m³</text>
+        <text x="348" y="126" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Acero total:</text>
+        <text x="348" y="142" fill="#C84B31" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${aceroKg.toFixed(1)} kg</text>
+        <text x="348" y="166" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Long: ${longElem.toFixed(1)} m</text>
+      `;
+    }
+
+    function agregarPaso2() {
+      calcularPaso2();
+      guardarConcepto(borradores.p2);
+    }
+
+    // =====================================================================
+    // PASO 03: LEVANTAMIENTO DE BARDA / MURO
+    // =====================================================================
+    function elegirPaso3(modo) {
+      p3Modo = modo;
+      ['tabique', 'block', 'tabicon'].forEach(m => {
+        const el = document.getElementById(`p3-op-${m}`);
+        el.classList.toggle('seleccionada', m === modo);
+        el.style.borderColor = m === modo ? 'var(--c-terracota)' : 'var(--borde-caliza)';
+      });
+      calcularPaso3();
+    }
+
+    function calcularPaso3() {
+      const pz = PIEZAS_MURO[p3Modo];
+      const L = Math.max(0.5, parseFloat(document.getElementById('p3-largo').value) || 0);
+      const H = Math.max(0.4, parseFloat(document.getElementById('p3-alto').value) || 0);
+      const vanos = Math.max(0, parseFloat(document.getElementById('p3-vanos').value) || 0);
+      const cemM3 = parseFloat(document.getElementById('p3-mortero').value) || 365;
+
+      const areaBruta = L * H;
+      const areaNeta = Math.max(0, areaBruta - vanos);
+      const junta = 0.015;
+      const rendM2 = 1 / ((pz.l + junta) * (pz.h + junta));
+      const piezasNetas = Math.ceil(areaNeta * rendM2);
+      const piezasTotales = Math.ceil(piezasNetas * 1.07);
+
+      const volMortero = areaNeta * pz.e * (1 - rendM2 * pz.l * pz.h) * 1.15;
+      const ins = insumoVacio();
+      ins[pz.key] = piezasTotales;
+      ins.cemento = Math.ceil((volMortero * cemM3) / 50);
+      ins.arena = volMortero * 1.15;
+
+      const aguaL = Math.round(volMortero * 240);
+
+      document.getElementById('p3-hero-val').textContent = areaNeta.toFixed(2);
+      document.getElementById('p3-hero-sub').textContent = `Bruta: ${areaBruta.toFixed(2)} m² - ${vanos.toFixed(2)} m² vanos`;
+      document.getElementById('p3-k1').textContent = `${piezasTotales.toLocaleString('es-MX')} pzas`;
+      document.getElementById('p3-k1-sub').textContent = `${(piezasTotales / 1000).toFixed(2)} millares (${rendM2.toFixed(1)}/m²)`;
+      document.getElementById('p3-k2').textContent = `${ins.cemento} bultos`;
+      document.getElementById('p3-k3').textContent = `${ins.arena.toFixed(2)} m³`;
+      document.getElementById('p3-k4').textContent = `${aguaL} L`;
+
+      dibujarPaso3SVG(L, H, vanos, areaNeta, piezasTotales, pz);
+
+      borradores.p3 = {
+        paso: 'Paso 03',
+        concepto: document.getElementById('p3-concepto').value.trim() || pz.nombre,
+        detalle: `${pz.nombre} · Neto ${areaNeta.toFixed(2)} m² · +7% desp.`,
+        unidad: 'm²',
+        cantidad: areaNeta,
+        pu: pz.pu,
+        insumos: ins
+      };
+    }
+
+    function dibujarPaso3SVG(L, H, vanos, areaNeta, piezasTotales, pz) {
+      const svg = document.getElementById('svg-paso3');
+      const x0 = 32, y0 = 26, w = 244, h = 132;
+      const filas = p3Modo === 'block' ? 7 : 11;
+      const cols = p3Modo === 'block' ? 9 : 13;
+      const rh = h / filas, cw = w / cols;
+      let ladrillos = '';
+      for (let r = 0; r < filas; r++) {
+        const off = (r % 2 === 1) ? cw * 0.5 : 0;
+        for (let c = -1; c <= cols; c++) {
+          let bx = x0 + c * cw + off, bw = cw - 1.5;
+          if (bx < x0) { bw -= (x0 - bx); bx = x0; }
+          if (bx + bw > x0 + w) bw = (x0 + w) - bx;
+          if (bw > 2) {
+            ladrillos += `<rect x="${bx.toFixed(1)}" y="${(y0 + r * rh).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(2, rh - 1.5).toFixed(1)}" fill="${pz.fill}" stroke="${pz.stroke}" stroke-width="0.5"/>`;
+          }
+        }
+      }
+      const areaBruta = L * H;
+      let vanoBox = '';
+      if (vanos > 0 && areaBruta > 0) {
+        const frac = Math.min(0.55, vanos / areaBruta);
+        const vw = w * Math.sqrt(frac) * 0.85, vh = h * Math.sqrt(frac) * 0.85;
+        const vx = x0 + (w - vw) / 2, vy = y0 + h - vh;
+        vanoBox = `
+          <rect x="${vx.toFixed(1)}" y="${vy.toFixed(1)}" width="${vw.toFixed(1)}" height="${vh.toFixed(1)}" fill="#FAF7F2" stroke="#1E1C19" stroke-width="1.5" stroke-dasharray="4 2"/>
+          <text x="${(vx + vw/2).toFixed(1)}" y="${(vy + vh/2 + 3).toFixed(1)}" fill="#C84B31" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">-${vanos.toFixed(1)}m²</text>
+        `;
+      }
+
+      svg.innerHTML = `
+        <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#DDD5C7" stroke="#1E1C19" stroke-width="1.4"/>
+        ${ladrillos}
+        ${vanoBox}
+        <text x="${x0 + w/2}" y="${y0 + h + 18}" fill="#1E1C19" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">L = ${L.toFixed(1)} m · H = ${H.toFixed(2)} m</text>
+
+        <rect x="290" y="16" width="118" height="162" rx="10" fill="#FFFFFF" stroke="#D8D0C2"/>
+        <text x="349" y="34" fill="#59554C" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">PASO 03 · MURO</text>
+        <text x="349" y="56" fill="#C84B31" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${areaNeta.toFixed(2)} m²</text>
+        <text x="349" y="88" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Piezas (+7%):</text>
+        <text x="349" y="106" fill="#1E1C19" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${piezasTotales.toLocaleString('es-MX')}</text>
+        <text x="349" y="142" fill="#2A6F4E" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Junta 1.5 cm</text>
+      `;
+    }
+
+    function agregarPaso3() {
+      calcularPaso3();
+      guardarConcepto(borradores.p3);
+    }
+
+    // =====================================================================
+    // PASO 04: CADENA DE CERRAMIENTO Y LOSA
+    // =====================================================================
+    function elegirPaso4(modo) {
+      p4Modo = modo;
+      ['cerramiento', 'maciza', 'aligerada'].forEach(m => {
+        const el = document.getElementById(`p4-op-${m}`);
+        el.classList.toggle('seleccionada', m === modo);
+        el.style.borderColor = m === modo ? 'var(--c-cobre)' : 'var(--borde-caliza)';
+      });
+      if (modo === 'cerramiento') {
+        document.getElementById('p4-concepto').value = 'Cadena de cerramiento 0.15×0.20 m sobre barda perimetral';
+        document.getElementById('p4-largo').value = 24.0;
+        document.getElementById('p4-ancho').value = 0.15;
+        document.getElementById('p4-espesor').value = 0.20;
+      } else if (modo === 'maciza') {
+        document.getElementById('p4-concepto').value = 'Losa maciza de concreto armado espesor 12 cm';
+        document.getElementById('p4-largo').value = 6.0;
+        document.getElementById('p4-ancho').value = 4.5;
+        document.getElementById('p4-espesor').value = 0.12;
+      } else {
+        document.getElementById('p4-concepto').value = 'Losa aligerada con casetón de poliestireno espesor 20 cm';
+        document.getElementById('p4-largo').value = 6.0;
+        document.getElementById('p4-ancho').value = 4.5;
+        document.getElementById('p4-espesor').value = 0.20;
+      }
+      sincSlider('p4-largo', 'p4-largo-s');
+      sincSlider('p4-ancho', 'p4-ancho-s');
+      sincSlider('p4-espesor', 'p4-espesor-s');
+      calcularPaso4();
+    }
+
+    function calcularPaso4() {
+      const L = Math.max(0.5, parseFloat(document.getElementById('p4-largo').value) || 0);
+      const B = Math.max(0.1, parseFloat(document.getElementById('p4-ancho').value) || 0);
+      const E = Math.max(0.08, parseFloat(document.getElementById('p4-espesor').value) || 0);
+      const cuantia = parseFloat(document.getElementById('p4-acero-cuantia').value) || 85;
+
+      const factorAlig = p4Modo === 'aligerada' ? 0.72 : 1.0;
+      const volConcreto = L * B * E * factorAlig * 1.05;
+      const areaRef = p4Modo === 'cerramiento' ? (L * (B + 2 * E)) : (L * B);
+
+      const ins = insumoVacio();
+      ins.cemento = Math.ceil((volConcreto * 320) / 50);
+      ins.arena = volConcreto * 0.50;
+      ins.grava = volConcreto * 0.72;
+      ins.acero = volConcreto * cuantia;
+      ins.alambre = ins.acero * 0.04;
+
+      document.getElementById('p4-hero-val').textContent = volConcreto.toFixed(2);
+      document.getElementById('p4-hero-sub').textContent = `${p4Modo === 'aligerada' ? 'Losa aligerada (72% conc.) · ' : ''}+5% desperdicio`;
+      document.getElementById('p4-k1').textContent = `${ins.cemento} bultos`;
+      document.getElementById('p4-k2').textContent = `${ins.arena.toFixed(2)} / ${ins.grava.toFixed(2)} m³`;
+      document.getElementById('p4-k3').textContent = `${ins.acero.toFixed(1)} kg`;
+      document.getElementById('p4-k3-sub').textContent = `+ ${ins.alambre.toFixed(2)} kg alambre`;
+      document.getElementById('p4-k4').textContent = `${areaRef.toFixed(2)} m²`;
+      document.getElementById('p4-k4-sub').textContent = p4Modo === 'cerramiento' ? 'Desarrollo de cimbra' : 'Área en planta';
+
+      dibujarPaso4SVG(L, B, E, volConcreto, ins.acero);
+
+      borradores.p4 = {
+        paso: 'Paso 04',
+        concepto: document.getElementById('p4-concepto').value.trim() || 'Cadena de cerramiento y losa',
+        detalle: `${L.toFixed(2)}m × ${B.toFixed(2)}m × ${E.toFixed(2)}m · Acero ${ins.acero.toFixed(1)} kg`,
+        unidad: 'm³',
+        cantidad: volConcreto,
+        pu: 3380,
+        insumos: ins
+      };
+    }
+
+    function dibujarPaso4SVG(L, B, E, volConcreto, aceroKg) {
+      const svg = document.getElementById('svg-paso4');
+      svg.innerHTML = `
+        <rect x="24" y="102" width="250" height="44" fill="#FCE6E0" stroke="#C84B31" stroke-width="1.4"/>
+        <text x="149" y="128" fill="#C84B31" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">MURO / BARDA BASE</text>
+        <rect x="24" y="64" width="250" height="38" fill="#FAECDF" stroke="#B86B35" stroke-width="2"/>
+        <line x1="30" y1="74" x2="268" y2="74" stroke="#2A6F4E" stroke-width="2"/>
+        <line x1="30" y1="92" x2="268" y2="92" stroke="#2A6F4E" stroke-width="2"/>
+        <text x="149" y="54" fill="#B86B35" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">ELEMENTO SUPERIOR (e=${(E*100).toFixed(0)} cm)</text>
+
+        <rect x="290" y="16" width="118" height="162" rx="10" fill="#FFFFFF" stroke="#D8D0C2"/>
+        <text x="349" y="34" fill="#59554C" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">PASO 04 · CIERRE</text>
+        <text x="349" y="56" fill="#B86B35" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">${L.toFixed(1)} × ${B.toFixed(2)} m</text>
+        <text x="349" y="86" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Concreto:</text>
+        <text x="349" y="102" fill="#1E1C19" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${volConcreto.toFixed(2)} m³</text>
+        <text x="349" y="132" fill="#59554C" font-size="8" font-family="monospace" text-anchor="middle">Acero:</text>
+        <text x="349" y="148" fill="#2A6F4E" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">${aceroKg.toFixed(1)} kg</text>
+      `;
+    }
+
+    function agregarPaso4() {
+      calcularPaso4();
+      guardarConcepto(borradores.p4);
+    }
+
+    // =====================================================================
+    // PASO 05: APLANADOS, PISOS Y ACABADOS
+    // =====================================================================
+    function elegirPaso5(modo) {
+      p5Modo = modo;
+      ['aplanado', 'piso', 'pintura'].forEach(m => {
+        const el = document.getElementById(`p5-op-${m}`);
+        el.classList.toggle('seleccionada', m === modo);
+        el.style.borderColor = m === modo ? 'var(--c-acabado)' : 'var(--borde-caliza)';
+      });
+      if (modo === 'aplanado') {
+        document.getElementById('p5-concepto').value = 'Aplanado fino de mortero 1:4 a plomo y regla en barda';
+      } else if (modo === 'piso') {
+        document.getElementById('p5-concepto').value = 'Piso cerámico 60×60 cm asentado con pegazulejo';
+      } else {
+        document.getElementById('p5-concepto').value = 'Pintura vinílica lavable a 2 manos con sellador';
+      }
+      calcularPaso5();
+    }
+
+    function calcularPaso5() {
+      const areaBase = Math.max(1, parseFloat(document.getElementById('p5-area').value) || 0);
+      const caras = parseInt(document.getElementById('p5-caras').value) || 1;
+      const espCm = Math.max(1.0, parseFloat(document.getElementById('p5-espesor').value) || 2.0);
+
+      const areaEfectiva = p5Modo === 'piso' ? areaBase : areaBase * caras;
+      document.getElementById('p5-badge').textContent = `${areaEfectiva.toFixed(2)} m²`;
+      document.getElementById('p5-hero-val').textContent = areaEfectiva.toFixed(2);
+      document.getElementById('p5-hero-sub').textContent = p5Modo === 'piso'
+        ? `Área piso + 8% merma cortes`
+        : `${areaBase.toFixed(2)} m² × ${caras} ${caras === 1 ? 'cara' : 'caras'}`;
+
+      const ins = insumoVacio();
+      let pu = 195, det = '';
+
+      if (p5Modo === 'aplanado') {
+        const volMort = areaEfectiva * (espCm / 100) * 1.10;
+        ins.cemento = Math.ceil((volMort * 365) / 50);
+        ins.arena = volMort * 1.15;
+        const agua = Math.round(volMort * 240);
+        pu = 195;
+        det = `Aplanado ${espCm.toFixed(1)} cm · ${caras} ${caras === 1 ? 'cara' : 'caras'}`;
+
+        document.getElementById('p5-k1-lbl').textContent = 'Cemento (50 kg)';
+        document.getElementById('p5-k1').textContent = `${ins.cemento} bultos`;
+        document.getElementById('p5-k1-sub').textContent = 'Mortero 1:4';
+        document.getElementById('p5-k2-lbl').textContent = 'Arena Cernida';
+        document.getElementById('p5-k2').textContent = `${ins.arena.toFixed(2)} m³`;
+        document.getElementById('p5-k2-sub').textContent = '+10% rebote';
+        document.getElementById('p5-k3-lbl').textContent = 'Vol. Mortero Total';
+        document.getElementById('p5-k3').textContent = `${volMort.toFixed(2)} m³`;
+        document.getElementById('p5-k3-sub').textContent = 'Zarpeo y afine';
+        document.getElementById('p5-k4-lbl').textContent = 'Agua de Mezclado';
+        document.getElementById('p5-k4').textContent = `${agua} L`;
+        document.getElementById('p5-k4-sub').textContent = 'Mezcla y curado';
+      } else if (p5Modo === 'piso') {
+        ins.pisoCaja = Math.ceil((areaEfectiva * 1.08) / 1.44);
+        ins.pegazulejo = Math.ceil(areaEfectiva / 4.5);
+        pu = 450;
+        det = `Piso cerámico 1.44 m²/caja · +8% merma`;
+
+        document.getElementById('p5-k1-lbl').textContent = 'Cajas Piso (1.44 m²)';
+        document.getElementById('p5-k1').textContent = `${ins.pisoCaja} cajas`;
+        document.getElementById('p5-k1-sub').textContent = `${(ins.pisoCaja * 1.44).toFixed(1)} m² totales`;
+        document.getElementById('p5-k2-lbl').textContent = 'Pegazulejo (20 kg)';
+        document.getElementById('p5-k2').textContent = `${ins.pegazulejo} sacos`;
+        document.getElementById('p5-k2-sub').textContent = 'Rendimiento ~4.5 m²/saco';
+        document.getElementById('p5-k3-lbl').textContent = 'Boquilla Est. (kg)';
+        document.getElementById('p5-k3').textContent = `${Math.ceil(areaEfectiva * 0.35)} kg`;
+        document.getElementById('p5-k3-sub').textContent = 'Junta 3 mm';
+        document.getElementById('p5-k4-lbl').textContent = 'Merma Cortes (8%)';
+        document.getElementById('p5-k4').textContent = `${(areaEfectiva * 0.08).toFixed(2)} m²`;
+        document.getElementById('p5-k4-sub').textContent = 'Piezas de ajuste';
+      } else {
+        ins.pintura = Math.ceil(areaEfectiva / 5.5);
+        const selladorL = Math.ceil(areaEfectiva / 12);
+        pu = 92;
+        det = `Pintura vinílica 2 manos + sellador`;
+
+        document.getElementById('p5-k1-lbl').textContent = 'Pintura Vinílica';
+        document.getElementById('p5-k1').textContent = `${ins.pintura} litros`;
+        document.getElementById('p5-k1-sub').textContent = `≈ ${(ins.pintura / 19).toFixed(1)} cubetas 19L`;
+        document.getElementById('p5-k2-lbl').textContent = 'Sellador Vinílico';
+        document.getElementById('p5-k2').textContent = `${selladorL} litros`;
+        document.getElementById('p5-k2-sub').textContent = 'Rendimiento 12 m²/L';
+        document.getElementById('p5-k3-lbl').textContent = 'Manos de Aplicación';
+        document.getElementById('p5-k3').textContent = '2 manos';
+        document.getElementById('p5-k3-sub').textContent = '5.5 m²/L total';
+        document.getElementById('p5-k4-lbl').textContent = 'Área Efectiva';
+        document.getElementById('p5-k4').textContent = `${areaEfectiva.toFixed(1)} m²`;
+        document.getElementById('p5-k4-sub').textContent = 'Superficie cubierta';
+      }
+
+      dibujarPaso5SVG(areaEfectiva, espCm, caras);
+
+      borradores.p5 = {
+        paso: 'Paso 05',
+        concepto: document.getElementById('p5-concepto').value.trim() || 'Acabados de obra',
+        detalle: det,
+        unidad: 'm²',
+        cantidad: areaEfectiva,
+        pu,
+        insumos: ins
+      };
+    }
+
+    function dibujarPaso5SVG(areaEfectiva, espCm, caras) {
+      const svg = document.getElementById('svg-paso5');
+      const grueso = Math.max(10, Math.min(24, espCm * 8));
+      svg.innerHTML = `
+        <rect x="115" y="24" width="50" height="132" fill="#C84B31" stroke="#7C2D12" stroke-width="1.3"/>
+        <text x="140" y="94" fill="#FFFFFF" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">BASE</text>
+        <rect x="${115 - grueso}" y="24" width="${grueso}" height="132" fill="#DDF0F4" stroke="#1F7A8C" stroke-width="1.2"/>
+        ${caras === 2 && p5Modo !== 'piso' ? `<rect x="165" y="24" width="${grueso}" height="132" fill="#DDF0F4" stroke="#1F7A8C" stroke-width="1.2"/>` : ''}
+
+        <rect x="240" y="16" width="168" height="162" rx="10" fill="#FFFFFF" stroke="#D8D0C2"/>
+        <text x="324" y="36" fill="#59554C" font-size="8" font-family="monospace" font-weight="bold" text-anchor="middle">PASO 05 · ACABADOS</text>
+        <text x="324" y="64" fill="#1F7A8C" font-size="12" font-family="monospace" font-weight="bold" text-anchor="middle">${areaEfectiva.toFixed(2)} m²</text>
+        <text x="324" y="96" fill="#59554C" font-size="8.5" font-family="monospace" text-anchor="middle">Espesor ref: ${espCm.toFixed(1)} cm</text>
+        <text x="324" y="124" fill="#2A6F4E" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Rendimiento normativo</text>
+      `;
+    }
+
+    function agregarPaso5() {
+      calcularPaso5();
+      guardarConcepto(borradores.p5);
+    }
+
+    // =====================================================================
+    // PASO 06: RESUMEN GENERAL, PRESUPUESTO Y EXPLOSIÓN DE MATERIALES
+    // =====================================================================
+    function guardarConcepto(borrador) {
+      if (!borrador || borrador.cantidad <= 0) {
+        avisar('La cantidad debe ser mayor a cero.');
+        return;
+      }
+      conceptosObra.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        ...JSON.parse(JSON.stringify(borrador))
+      });
+      guardarLocal();
+      renderResumen();
+      avisar(`Agregado: "${borrador.concepto}"`);
+    }
+
+    function quitarConcepto(id) {
+      conceptosObra = conceptosObra.filter(c => c.id !== id);
+      guardarLocal();
+      renderResumen();
+      avisar('Concepto eliminado.');
+    }
+
+    function cambiarPU(id, val) {
+      const item = conceptosObra.find(c => c.id === id);
+      if (item) {
+        item.pu = Math.max(0, parseFloat(val) || 0);
+        guardarLocal();
+        renderResumen();
+      }
+    }
+
+    function cambiarPrecioInsumo(key, val) {
+      PRECIOS_INSUMOS[key] = Math.max(0, parseFloat(val) || 0);
+      renderResumen();
+    }
+
+    function limpiarTodo() {
+      conceptosObra = [];
+      guardarLocal();
+      renderResumen();
+      avisar('Presupuesto limpiado.');
+    }
+
+    function cargarEjemploObra() {
+      conceptosObra = [
+        {
+          id: 1, paso: 'Paso 01',
+          concepto: 'Excavación en cepa de 0.60 × 0.80 m en 24.0 m de barda',
+          detalle: '24.00m × 0.60m × 0.80m · Abund. 1.30',
+          unidad: 'm³', cantidad: 11.52, pu: 245.00,
+          insumos: { cemento: 0, arena: 0, grava: 0, piedra: 0, acero: 0, alambre: 0, tabique: 0, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 0 }
+        },
+        {
+          id: 2, paso: 'Paso 01',
+          concepto: "Plantilla de concreto pobre f'c = 100 kg/cm² espesor 5 cm",
+          detalle: '24.00m × 0.60m × 0.05m + 5% desp.',
+          unidad: 'm²', cantidad: 14.40, pu: 165.00,
+          insumos: { cemento: 4, arena: 0.43, grava: 0.64, piedra: 0, acero: 0, alambre: 0, tabique: 0, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 0 }
+        },
+        {
+          id: 3, paso: 'Paso 02',
+          concepto: 'Cadena de desplante 0.15×0.20 m y 8 castillos armados #3 @ 15 cm',
+          detalle: 'Concreto 1.15 m³ + Acero 68.4 kg + Alambre',
+          unidad: 'm³', cantidad: 1.15, pu: 3450.00,
+          insumos: { cemento: 8, arena: 0.58, grava: 0.83, piedra: 0, acero: 68.4, alambre: 2.74, tabique: 0, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 0 }
+        },
+        {
+          id: 4, paso: 'Paso 03',
+          concepto: 'Barda de tabique rojo recocido (6×12×24 cm) con mortero 1:4',
+          detalle: '54.00 m² netos · +7% desperdicio',
+          unidad: 'm²', cantidad: 54.00, pu: 485.00,
+          insumos: { cemento: 9, arena: 1.30, grava: 0, piedra: 0, acero: 0, alambre: 0, tabique: 3022, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 0 }
+        },
+        {
+          id: 5, paso: 'Paso 04',
+          concepto: 'Cadena de cerramiento 0.15×0.20 m sobre barda perimetral',
+          detalle: '24.00m × 0.15m × 0.20m + 5% desp.',
+          unidad: 'm³', cantidad: 0.76, pu: 3380.00,
+          insumos: { cemento: 5, arena: 0.38, grava: 0.55, piedra: 0, acero: 64.6, alambre: 2.58, tabique: 0, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 0 }
+        },
+        {
+          id: 6, paso: 'Paso 05',
+          concepto: 'Aplanado fino de mortero 1:4 a 2 caras y pintura vinílica',
+          detalle: '108.00 m² efectivos · 2 manos',
+          unidad: 'm²', cantidad: 108.00, pu: 195.00,
+          insumos: { cemento: 18, arena: 2.73, grava: 0, piedra: 0, acero: 0, alambre: 0, tabique: 0, block: 0, tabicon: 0, pisoCaja: 0, pegazulejo: 0, pintura: 20 }
+        }
+      ];
+      guardarLocal();
+      renderResumen();
+      irPaso(6);
+      avisar('Ejemplo completo de obra cargado en los pasos 01 a 05.');
+    }
+
+    function formatoPesos(n) {
+      return '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function renderResumen() {
+      document.getElementById('contador-conceptos').textContent = conceptosObra.length;
+      const movilCont = document.getElementById('movil-contador');
+      if (movilCont) movilCont.textContent = conceptosObra.length;
+      const indPct = Math.max(0, parseFloat(document.getElementById('meta-indirectos').value) || 0);
+
+      const tot = {
+        cemento: 0, arena: 0, grava: 0, piedra: 0,
+        acero: 0, alambre: 0,
+        tabique: 0, block: 0, tabicon: 0,
+        pisoCaja: 0, pegazulejo: 0, pintura: 0
+      };
+
+      let costoDirecto = 0;
+      const tbody = document.getElementById('tbody-conceptos');
+      const tfoot = document.getElementById('tfoot-conceptos');
+
+      if (conceptosObra.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding:28px; text-align:center; color:var(--texto-grafito);">Aún no has agregado conceptos. Usa los Pasos 01 a 05 o presiona <strong>Cargar Ejemplo de Obra</strong>.</td></tr>`;
+        tfoot.innerHTML = '';
+      } else {
+        tbody.innerHTML = conceptosObra.map(c => {
+          const imp = c.cantidad * c.pu;
+          costoDirecto += imp;
+          Object.keys(tot).forEach(k => { tot[k] += (c.insumos[k] || 0); });
+          const st = ESTILO_PASO[c.paso] || { bg: '#E3E9EF', texto: '#2B3A4A' };
+          return `
+            <tr>
+              <td><span class="insignia-paso" style="background:${st.bg}; color:${st.texto};">${c.paso}</span></td>
+              <td>
+                <div style="font-weight:800;">${escaparHTML(c.concepto)}</div>
+                <div style="font-family:var(--fuente-mono); font-size:0.7rem; color:var(--texto-grafito);">${escaparHTML(c.detalle)}</div>
+              </td>
+              <td style="font-family:var(--fuente-mono); font-weight:700;">${escaparHTML(c.unidad)}</td>
+              <td class="col-der">${c.cantidad.toFixed(2)}</td>
+              <td class="col-der">
+                <input type="number" step="1" min="0" value="${c.pu.toFixed(2)}" class="pu-editable" onchange="cambiarPU(${c.id}, this.value)" />
+              </td>
+              <td class="col-der">${formatoPesos(imp)}</td>
+              <td class="sin-imprimir" style="text-align:center;">
+                <button type="button" class="btn-quitar" onclick="quitarConcepto(${c.id})">✕ Quitar</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        const indVal = costoDirecto * (indPct / 100);
+        const sub = costoDirecto + indVal;
+        const iva = sub * 0.16;
+        const total = sub + iva;
+
+        tfoot.innerHTML = `
+          <tr style="background:var(--bg-marfil);"><td colspan="5" class="col-der">COSTO DIRECTO:</td><td class="col-der">${formatoPesos(costoDirecto)}</td><td class="sin-imprimir"></td></tr>
+          <tr style="background:var(--bg-marfil);"><td colspan="5" class="col-der">INDIRECTOS Y UTILIDAD (${indPct.toFixed(1)}%):</td><td class="col-der">${formatoPesos(indVal)}</td><td class="sin-imprimir"></td></tr>
+          <tr style="background:var(--bg-marfil);"><td colspan="5" class="col-der">I.V.A. (16%):</td><td class="col-der">${formatoPesos(iva)}</td><td class="sin-imprimir"></td></tr>
+          <tr style="background:var(--c-ingenieria-bg);"><td colspan="5" class="col-der" style="color:var(--c-ingenieria); font-size:0.95rem;">PRESUPUESTO TOTAL CON IVA:</td><td class="col-der" style="color:var(--c-ingenieria); font-size:1.05rem;">${formatoPesos(total)}</td><td class="sin-imprimir"></td></tr>
+        `;
+      }
+
+      // Actualizar 6 mini tarjetas
+      document.getElementById('res-cem').textContent = `${tot.cemento} bultos`;
+      document.getElementById('res-cem-ton').textContent = `${((tot.cemento * 50) / 1000).toFixed(2)} Ton`;
+      document.getElementById('res-agr').textContent = `${(tot.arena + tot.grava).toFixed(2)} m³`;
+      document.getElementById('res-agr-det').textContent = `${tot.arena.toFixed(2)} A · ${tot.grava.toFixed(2)} G`;
+      document.getElementById('res-ace').textContent = `${tot.acero.toFixed(1)} kg`;
+      document.getElementById('res-ace-det').textContent = `${tot.alambre.toFixed(1)} kg alambre`;
+
+      const pzasMuro = tot.tabique + tot.block + tot.tabicon;
+      document.getElementById('res-pzas').textContent = `${pzasMuro.toLocaleString('es-MX')} pzas`;
+      document.getElementById('res-pzas-det').textContent = `${(pzasMuro / 1000).toFixed(2)} millares`;
+
+      document.getElementById('res-aca').textContent = `${tot.pisoCaja} cj / ${tot.pintura} L`;
+      document.getElementById('res-aca-det').textContent = `${tot.pegazulejo} sacos pegazulejo`;
+
+      const totalConIva = (costoDirecto * (1 + indPct / 100)) * 1.16;
+      document.getElementById('res-total').textContent = formatoPesos(totalConIva);
+      document.getElementById('res-cd').textContent = `CD: ${formatoPesos(costoDirecto)}`;
+
+      // Tabla 2: Explosión Global de Materiales
+      const filasMat = [
+        { key: 'cemento', name: 'Cemento Gris (Bulto 50 kg)', unit: 'Bulto', qty: tot.cemento, dec: 0 },
+        { key: 'arena', name: 'Arena de Río / Cernida', unit: 'm³', qty: tot.arena, dec: 2 },
+        { key: 'grava', name: 'Grava Triturada 3/4"', unit: 'm³', qty: tot.grava, dec: 2 },
+        { key: 'piedra', name: 'Piedra Braza para Cimiento', unit: 'm³', qty: tot.piedra, dec: 2 },
+        { key: 'acero', name: 'Varilla y Estribos de Acero', unit: 'kg', qty: tot.acero, dec: 2 },
+        { key: 'alambre', name: 'Alambre Recocido Cal. 18', unit: 'kg', qty: tot.alambre, dec: 2 },
+        { key: 'tabique', name: 'Tabique Rojo Recocido', unit: 'Pieza', qty: tot.tabique, dec: 0 },
+        { key: 'block', name: 'Block Hueco 15×20×40 cm', unit: 'Pieza', qty: tot.block, dec: 0 },
+        { key: 'tabicon', name: 'Tabicón Pesado 10×14×28 cm', unit: 'Pieza', qty: tot.tabicon, dec: 0 },
+        { key: 'pisoCaja', name: 'Piso Cerámico (Caja 1.44 m²)', unit: 'Caja', qty: tot.pisoCaja, dec: 0 },
+        { key: 'pegazulejo', name: 'Pegazulejo (Saco 20 kg)', unit: 'Saco', qty: tot.pegazulejo, dec: 0 },
+        { key: 'pintura', name: 'Pintura Vinílica Lavable', unit: 'Litro', qty: tot.pintura, dec: 0 }
+      ].filter(f => f.qty > 0);
+
+      const tbodyMat = document.getElementById('tbody-materiales');
+      if (filasMat.length === 0) {
+        tbodyMat.innerHTML = `<tr><td colspan="5" style="padding:18px; text-align:center; color:var(--texto-grafito);">Sin materiales acumulados todavía.</td></tr>`;
+      } else {
+        let sumaMat = 0;
+        tbodyMat.innerHTML = filasMat.map(f => {
+          const p = PRECIOS_INSUMOS[f.key] || 0;
+          const sub = f.qty * p;
+          sumaMat += sub;
+          return `
+            <tr>
+              <td style="font-weight:700;">${f.name}</td>
+              <td style="font-family:var(--fuente-mono);">${f.unit}</td>
+              <td class="col-der">${f.qty.toLocaleString('es-MX', { minimumFractionDigits: f.dec, maximumFractionDigits: f.dec })}</td>
+              <td class="col-der">
+                <input type="number" step="0.5" min="0" value="${p.toFixed(2)}" class="pu-editable" onchange="cambiarPrecioInsumo('${f.key}', this.value)" />
+              </td>
+              <td class="col-der">${formatoPesos(sub)}</td>
+            </tr>
+          `;
+        }).join('') + `
+          <tr style="background:var(--bg-arena);">
+            <td colspan="4" class="col-der">TOTAL ESTIMADO DE MATERIALES:</td>
+            <td class="col-der" style="color:var(--c-ingenieria);">${formatoPesos(sumaMat)}</td>
+          </tr>
+        `;
+      }
+    }
+
+    // =====================================================================
+    // COPIAR / DESCARGAR index.html, EXPORTAR CSV E IMPRIMIR PDF
+    // =====================================================================
+    function copiarCodigoHTML() {
+      const htmlCompleto = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const area = document.createElement('textarea');
+      area.value = htmlCompleto;
+      area.setAttribute('readonly', '');
+      area.style.position = 'absolute';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      try {
+        document.execCommand('copy');
+        avisar('Código completo de index.html copiado al portapapeles.');
+      } catch (e) {
+        avisar('No se pudo copiar automáticamente; usa Descargar index.html.');
+      }
+      document.body.removeChild(area);
+    }
+
+    function descargarCodigoHTML() {
+      const htmlCompleto = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlCompleto], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      avisar('Archivo index.html descargado listo para GitHub.');
+    }
+
+    function exportarCSV() {
+      if (conceptosObra.length === 0) {
+        avisar('Agrega conceptos o carga el ejemplo antes de exportar CSV.');
+        return;
+      }
+      const filas = [
+        ['CUANTIFICACION CRONOLOGICA DE OBRA - PRESUPUESTO DE OBRA'],
+        ['Obra:', `"${document.getElementById('meta-obra').value.replace(/"/g, '""')}"`],
+        ['Alumno:', `"${document.getElementById('meta-alumno').value.replace(/"/g, '""')}"`],
+        [],
+        ['Etapa', 'Concepto', 'Detalle', 'Unidad', 'Cantidad', 'P.U.', 'Importe']
+      ];
+      conceptosObra.forEach(c => {
+        filas.push([
+          c.paso,
+          `"${c.concepto.replace(/"/g, '""')}"`,
+          `"${c.detalle.replace(/"/g, '""')}"`,
+          c.unidad,
+          c.cantidad.toFixed(2),
+          c.pu.toFixed(2),
+          (c.cantidad * c.pu).toFixed(2)
+        ]);
+      });
+      const csv = '\uFEFF' + filas.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'presupuesto_obra.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      avisar('Archivo presupuesto_obra.csv exportado.');
+    }
+
+    function imprimirPDF() {
+      sincronizarMeta();
+      document.getElementById('imp-fecha').textContent = 'Fecha: ' + new Date().toLocaleDateString('es-MX');
+      irPaso(6);
+      setTimeout(() => window.print(), 120);
+    }
+
+    function guardarLocal() {
+      try { localStorage.setItem('obrapaso_github_v1', JSON.stringify(conceptosObra)); } catch (e) {}
+    }
+
+    function cargarGuardado() {
+      try {
+        const raw = localStorage.getItem('obrapaso_github_v1');
+        if (raw) conceptosObra = JSON.parse(raw);
+      } catch (e) { conceptosObra = []; }
+    }
+
+    function escaparHTML(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function avisar(msg) {
+      const box = document.getElementById('toast-aviso');
+      const el = document.createElement('div');
+      el.className = 'toast-item';
+      el.textContent = msg;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s';
+        setTimeout(() => el.remove(), 260);
+      }, 2800);
+    }
+  </script>
+</body>
+</html>
